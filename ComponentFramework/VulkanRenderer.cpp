@@ -713,7 +713,6 @@ bool VulkanRenderer::hasStencilComponent(VkFormat format) {
 }
 
 void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
-    
     SDL_Surface* image = IMG_Load(texureFile);
     VkDeviceSize imageSize = image->w * image->h * 4; /// RGBA only please
 
@@ -722,8 +721,12 @@ void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
         stagingBuffer.bufferID, stagingBuffer.bufferMemoryID);
 
     void* data;
+    // get an adress on the GPU where we can write data, 
+    // Scott called it the "Loading Dock"
     vkMapMemory(device, stagingBuffer.bufferMemoryID, 0, imageSize, 0, &data);
+    // copy image data to that address on the GPU
     memcpy(data, image->pixels, static_cast<size_t>(imageSize)); /// memcpy wants a 32 bit not a 64 bit int thus the type cast
+    // close the "Loading dock"
     vkUnmapMemory(device, stagingBuffer.bufferMemoryID);
 
   
