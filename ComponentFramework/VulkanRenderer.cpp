@@ -18,14 +18,16 @@ VulkanRenderer::~VulkanRenderer() {
 SDL_Window* VulkanRenderer::CreateWindow(std::string name_, int width_, int height_) {
     windowWidth = width_;
     windowHeight = height_;
+    // turn on SDL
     SDL_Init(SDL_INIT_VIDEO);
-    window = SDL_CreateWindow(name_.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow(name_.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+        windowWidth, windowHeight, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     return window;
 }
 
 bool VulkanRenderer::OnCreate(){ 
     createInstance();
-    setupDebugMessenger();
+    setupDebugMessenger(); // messaging system for validation layers to comunicate to u
     if (!SDL_Vulkan_CreateSurface(window, instance, &surface)) {
         throw std::runtime_error("failed to create window");
     }

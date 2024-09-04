@@ -13,17 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Scenes">
-      <UniqueIdentifier>{252de02d-6b89-41ec-b372-ddfef9870bbe}</UniqueIdentifier>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{30a2c708-4fab-4544-af7c-b239d482b269}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Scenes">
-      <UniqueIdentifier>{e8c82a08-d757-47ee-b6fe-eee59a99570f}</UniqueIdentifier>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{3539bfec-363e-455a-ad94-b34aedf4999f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Renderers">
-      <UniqueIdentifier>{04e967ff-c36b-484b-8e26-409b1df3617e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Renderers">
-      <UniqueIdentifier>{30c80976-ed84-4ca8-ab3a-bd86aa11c0ac}</UniqueIdentifier>
+    <Filter Include="Managers">
+      <UniqueIdentifier>{eb1d7c4e-e794-4e06-933a-ce0a3528de6c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,20 +33,20 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene0.cpp">
-      <Filter>Source Files\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanRenderer.cpp">
-      <Filter>Source Files\Renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenGLRenderer.cpp">
-      <Filter>Source Files\Renderers</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLRenderer.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRenderer.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene0.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,24 +56,6 @@
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene0.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanRenderer.h">
-      <Filter>Header Files\Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files\Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLRenderer.h">
-      <Filter>Header Files\Renderers</Filter>
-    </ClInclude>
     <ClInclude Include="tiny_obj_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -85,6 +64,24 @@
     </ClInclude>
     <ClInclude Include="UBO_Padding.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene0.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
