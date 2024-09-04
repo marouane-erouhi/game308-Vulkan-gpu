@@ -25,7 +25,7 @@ SDL_Window* VulkanRenderer::CreateWindow(std::string name_, int width_, int heig
     return window;
 }
 
-bool VulkanRenderer::OnCreate(){ 
+bool VulkanRenderer::OnCreate(){
     createInstance();
     setupDebugMessenger(); // messaging system for validation layers to comunicate to u
     if (!SDL_Vulkan_CreateSurface(window, instance, &surface)) {
@@ -33,8 +33,8 @@ bool VulkanRenderer::OnCreate(){
     }
     
     pickPhysicalDevice();
-    createLogicalDevice();  
-    createSwapChain(); 
+    createLogicalDevice();
+    createSwapChain(); // for things like double buffer and other things
     createImageViews();
     createRenderPass();
     createDescriptorSetLayout();
@@ -297,12 +297,29 @@ void VulkanRenderer::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    for (const auto& device : devices) {
-        if (isDeviceSuitable(device)) {
-            physicalDevice = device;
+    // print out device names
+    //for (const auto& device : devices) {
+    //    VkPhysicalDeviceProperties properties;
+    //    vkGetPhysicalDeviceProperties(device, &properties);
+    //    std::cout << "Device name: " << properties.deviceName << std::endl;
+    //}
+
+    // This loop is just the reverse of the one under it, this is so that 
+    // it would probably choose the dedicated GPU rather then internal
+    for (auto it = devices.rbegin(); it != devices.rend(); ++it) {
+        if (isDeviceSuitable(*it)) {
+            physicalDevice = *it;
             break;
         }
     }
+    //for (const auto& device : devices) {
+    //    // TODO, since it's picking the first valid device,
+    //    // it looks like it's using my intergrated graphics
+    //    if (isDeviceSuitable(device)) {
+    //        physicalDevice = device;
+    //        break;
+    //    }
+    //}
 
     if (physicalDevice == VK_NULL_HANDLE) {
         throw std::runtime_error("failed to find a suitable GPU!");
