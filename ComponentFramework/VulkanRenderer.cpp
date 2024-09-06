@@ -716,7 +716,8 @@ void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
     SDL_Surface* image = IMG_Load(texureFile);
     VkDeviceSize imageSize = image->w * image->h * 4; /// RGBA only please
 
-    BufferMemory stagingBuffer;
+    BufferMemory stagingBuffer; 
+    // ^^ This is the "Loading Dock", it is the only memory location we can access on the GPU
     createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         stagingBuffer.bufferID, stagingBuffer.bufferMemoryID);
 
@@ -734,10 +735,12 @@ void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
         VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture2D.image, texture2D.imageDeviceMemory);
 
+    // 
     transitionImageLayout(texture2D.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     copyBufferToImage(stagingBuffer.bufferID, texture2D.image, static_cast<uint32_t>(image->w), static_cast<uint32_t>(image->h));
     transitionImageLayout(texture2D.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+    // detroy the "Loading Dock"
     vkDestroyBuffer(device, stagingBuffer.bufferID, nullptr);
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
     SDL_FreeSurface(image);
@@ -889,7 +892,9 @@ void VulkanRenderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t 
 }
 
 void VulkanRenderer::LoadModelIndexed(const char* filename) {
-   
+    
+
+
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
