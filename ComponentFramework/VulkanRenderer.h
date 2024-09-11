@@ -126,7 +126,7 @@ struct IndexedVertexBuffer {
     VkDeviceMemory indexBufferMemoryID;
     VkDeviceSize indexBufferLength;
 };
-
+// this is defined in the shader as well as a "uniform UniformBufferObject"
 struct CameraUBO { /// A UniformBufferObject
     Matrix4 projectionMatrix;
     Matrix4 viewMatrix;
