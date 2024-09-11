@@ -45,11 +45,13 @@ bool VulkanRenderer::OnCreate(){
     createDepthResources();
     createFramebuffers();
     Create2DTextureImage("./textures/mario_fire.png");
-    LoadModelIndexed("./meshes/Mario.obj");
+    LoadModelIndexed("./meshes/Mario.obj"); // load obj model
+    // 
     CreateGraphicsPipeline("./shaders/simpleTexture.vert.spv", "./shaders/simpleTexture.frag.spv");
-    createUniformBuffers();
+    createUniformBuffers(); // write uniforms
     
     createDescriptorSets();
+    // command buffers hold all the draw calls u need to do for that frame
     createCommandBuffers();
     createSyncObjects();
     return true;
@@ -525,6 +527,8 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    // if u want to make this data go to other stages(like the fragment shader)
+    // u can OR them together. eg: (VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
     vertShaderStageInfo.pName = "main";
@@ -553,6 +557,7 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+    // This is prety much the window
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
@@ -561,6 +566,9 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
+    // u can cut sections of a render pass,
+    // This allows u to prevent redering from a certain part of the screen
+    // if u don't set this, it will scissor the whole screen, so u have to set it to nothing like the follwing
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
     scissor.extent = swapChainExtent;
@@ -595,6 +603,7 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_FALSE;
 
+    // blend colors
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     colorBlendAttachment.blendEnable = VK_FALSE;
@@ -619,6 +628,7 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
+    // this is the government form that points to all the government forms u made earlier lol
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -635,6 +645,7 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
+    // make the pipline
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
@@ -892,9 +903,6 @@ void VulkanRenderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t 
 }
 
 void VulkanRenderer::LoadModelIndexed(const char* filename) {
-    
-
-
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -947,7 +955,7 @@ void VulkanRenderer::createVertexBuffer(IndexedVertexBuffer &indexedBufferMemory
     indexedBufferMemory.vertBufferLength = vertices.size();
 
     VkDeviceSize bufferSize = indexedBufferMemory.vertBufferLength * sizeof(Vertex);
-    BufferMemory stagingBuffer;
+    BufferMemory stagingBuffer; // once again, The "Loading Dock"
     
                                                                                                                        
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
@@ -977,6 +985,7 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
         stagingBuffer.bufferID, stagingBuffer.bufferMemoryID);
 
+   // load the data into the staging area
     void* data;
     vkMapMemory(device, stagingBuffer.bufferMemoryID, 0, bufferSize, 0, &data);
     memcpy(data, indices.data(), bufferSize);
@@ -994,8 +1003,11 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
 void VulkanRenderer::createUniformBuffers() {
     VkDeviceSize bufferSize = sizeof(CameraUBO);
 
+    // swap chains are for things like double buffering
     uniformBuffers.resize(swapChainImages.size()); 
 
+    // duplicate the uniform for each buffer u have in ur swap chains
+    // since swap chain buffers are async
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
@@ -1174,15 +1186,18 @@ void VulkanRenderer::createCommandBuffers() {
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = swapChainExtent;
 
-        std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+        std::array<VkClearValue, 2> clearValues{}; // create the backgroud color
+        clearValues[0].color = { 0.0f, 1.0f, 0.0f, 1.0f };
         clearValues[1].depthStencil = { 1.0f, 0 };
 
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
+
+        // RENDER
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+        // bind to the existing pipline
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
         VkBuffer vertexBuffers[] = { indexedVertexBuffer.vertBufferID };
@@ -1192,6 +1207,7 @@ void VulkanRenderer::createCommandBuffers() {
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
+        // END RENDER
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");

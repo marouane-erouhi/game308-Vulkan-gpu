@@ -64,8 +64,7 @@ struct SwapChainSupportDetails {
          /// Used in vertex deduplication
         bool operator == (const Vertex& other) const {
             return pos == other.pos && normal == other.normal && texCoord == other.texCoord;
-        }   
-
+        }
 
         static VkVertexInputBindingDescription getBindingDescription() {
             VkVertexInputBindingDescription bindingDescription{};
