@@ -9,7 +9,7 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 projectionMatrix;
     mat4 viewMatrix;
     mat4 modelMatrix;
-	vec4 lightPos;
+	vec4 lightPos; 
 } ubo;
 
 layout (location = 0) out vec3 vertNormal;
