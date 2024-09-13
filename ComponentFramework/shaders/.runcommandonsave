@@ -1,0 +1,2 @@
+[PostSave]
+Commands=Tools.ExternalCommand6 ; Run compile shaders tool after save
