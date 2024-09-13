@@ -48,7 +48,7 @@ bool VulkanRenderer::OnCreate(){
     LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     // 
     CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
-    createUniformBuffers(); // write uniforms
+    uniformBuffers = createUniformBuffers<CameraUBO>();
     
     createDescriptorSets();
     // command buffers hold all the draw calls u need to do for that frame
@@ -75,7 +75,7 @@ void VulkanRenderer::RecreateSwapChain() {
     CreateGraphicsPipeline("shaders/simplePhong.vert.spv","shaders/simplePhong.frag.spv");
     createDepthResources();
     createFramebuffers();
-    createUniformBuffers();
+    uniformBuffers = createUniformBuffers<CameraUBO>();
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
@@ -216,6 +216,7 @@ void VulkanRenderer::cleanupSwapChain() {
 
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 
+    //auto uniformBuffers = createUniformBuffers<CameraUBO>();
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         vkDestroyBuffer(device, uniformBuffers[i].bufferID, nullptr);
         vkFreeMemory(device, uniformBuffers[i].bufferMemoryID, nullptr);
@@ -316,7 +317,7 @@ void VulkanRenderer::pickPhysicalDevice() {
         }
     }
     //for (const auto& device : devices) {
-    //    // TODO, since it's picking the first valid device,
+    //    // since it's picking the first valid device,
     //    // it looks like it's using my intergrated graphics
     //    if (isDeviceSuitable(device)) {
     //        physicalDevice = device;
@@ -1002,8 +1003,11 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
 }
 
-void VulkanRenderer::createUniformBuffers() {
-    VkDeviceSize bufferSize = sizeof(CameraUBO);
+template<class T>
+std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(T);
+
+    std::vector<BufferMemory> uniformBuffers;
 
     // swap chains are for things like double buffering
     uniformBuffers.resize(swapChainImages.size()); 
@@ -1014,7 +1018,10 @@ void VulkanRenderer::createUniformBuffers() {
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
             uniformBuffers[i].bufferID, uniformBuffers[i].bufferMemoryID);
+        uniformBuffers[i].bufferMemoryLength = bufferSize;
     }
+
+    return uniformBuffers;
 }
 
 #define TOTAL_NUMBER_OF_DESCRIPTORS 2
@@ -1050,6 +1057,7 @@ void VulkanRenderer::createDescriptorSets() {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
+    //auto uniformBuffers = createUniformBuffers<CameraUBO>();
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = uniformBuffers[i].bufferID;
@@ -1239,14 +1247,16 @@ void VulkanRenderer::createSyncObjects() {
     }
 }
 
-void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model) {
+void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model, const Vec4& lightPos) {
     cameraUBO.projectionMatrix = projection;
     cameraUBO.viewMatrix = view;
     cameraUBO.modelMatrix = model;
     cameraUBO.projectionMatrix[5] *= -1.0f;
+    cameraUBO.lightPos = lightPos;
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
+    //auto uniformBuffers = createUniformBuffers<CameraUBO>();
     void* data;
     vkMapMemory(device, uniformBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
     memcpy(data, &cameraUBO, sizeof(CameraUBO));

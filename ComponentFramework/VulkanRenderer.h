@@ -115,6 +115,7 @@ struct SwapChainSupportDetails {
 struct BufferMemory {
     VkBuffer bufferID;
     VkDeviceMemory bufferMemoryID;
+    VkDeviceSize bufferMemoryLength;
 };
 
 struct IndexedVertexBuffer {
@@ -159,7 +160,7 @@ public: /// Member functions
     void Render();
     
 
-    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
+    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model, const Vec4& lightPos);
     void Create2DTextureImage(const char* texureFile);
     void CreateGraphicsPipeline(const char* vertFile, const char* fragFile);
     void LoadModelIndexed(const char* filename);
@@ -240,7 +241,8 @@ private: /// Member functions
     void createVertexBuffer(IndexedVertexBuffer &indexedVertexBuffer, const std::vector<Vertex> &vertices);
     void createIndexBuffer(IndexedVertexBuffer &indexedVertexBuffer, const std::vector<uint32_t> &indices);
 
-    void createUniformBuffers();
+    template<class T>
+    std::vector<BufferMemory> createUniformBuffers();
     void createDescriptorPool();
     void createDescriptorSets();
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
