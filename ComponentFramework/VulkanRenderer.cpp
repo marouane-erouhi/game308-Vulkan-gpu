@@ -47,7 +47,7 @@ bool VulkanRenderer::OnCreate(){
     Create2DTextureImage("./textures/mario_fire.png");
     LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     // 
-    CreateGraphicsPipeline("./shaders/simpleTexture.vert.spv", "./shaders/simpleTexture.frag.spv");
+    CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
     createUniformBuffers(); // write uniforms
     
     createDescriptorSets();
@@ -57,6 +57,7 @@ bool VulkanRenderer::OnCreate(){
     return true;
 }
 
+// runs on window events such as resize of new display device
 void VulkanRenderer::RecreateSwapChain() {
     int width = 0, height = 0;
     SDL_GetWindowSize(window, &width, &height);
@@ -71,7 +72,7 @@ void VulkanRenderer::RecreateSwapChain() {
     createSwapChain();
     createImageViews();
     createRenderPass();
-    CreateGraphicsPipeline("shaders/simpleTexture.vert.spv","shaders/simpleTexture.frag.spv");
+    CreateGraphicsPipeline("shaders/simplePhong.vert.spv","shaders/simplePhong.frag.spv");
     createDepthResources();
     createFramebuffers();
     createUniformBuffers();
@@ -1188,7 +1189,7 @@ void VulkanRenderer::createCommandBuffers() {
         renderPassInfo.renderArea.extent = swapChainExtent;
 
         std::array<VkClearValue, 2> clearValues{}; // create the backgroud color
-        clearValues[0].color = { 0.0f, 1.0f, 0.0f, 1.0f };
+        clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
         clearValues[1].depthStencil = { 1.0f, 0 };
 
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
