@@ -211,7 +211,9 @@ private: /// Private member variables
     Sampler2D texture2D;
     CameraUBO cameraUBO;
     IndexedVertexBuffer indexedVertexBuffer;
-    std::vector<BufferMemory> uniformBuffers;
+    //std::vector<BufferMemory> uniformBuffers;
+    // Uniforms
+    std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
 
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);

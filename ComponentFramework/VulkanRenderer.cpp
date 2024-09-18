@@ -48,8 +48,8 @@ bool VulkanRenderer::OnCreate(){
     LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     // 
     CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
-    uniformBuffers = createUniformBuffers<CameraUBO>();
-    
+    uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
+
     createDescriptorSets();
     // command buffers hold all the draw calls u need to do for that frame
     createCommandBuffers();
@@ -75,7 +75,7 @@ void VulkanRenderer::RecreateSwapChain() {
     CreateGraphicsPipeline("shaders/simplePhong.vert.spv","shaders/simplePhong.frag.spv");
     createDepthResources();
     createFramebuffers();
-    uniformBuffers = createUniformBuffers<CameraUBO>();
+    uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
@@ -217,10 +217,13 @@ void VulkanRenderer::cleanupSwapChain() {
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 
     //auto uniformBuffers = createUniformBuffers<CameraUBO>();
-    for (size_t i = 0; i < swapChainImages.size(); i++) {
-        vkDestroyBuffer(device, uniformBuffers[i].bufferID, nullptr);
-        vkFreeMemory(device, uniformBuffers[i].bufferMemoryID, nullptr);
+    for (auto uniformBuffer : uniformBuffers) {
+        for (size_t i = 0; i < swapChainImages.size(); i++) {
+            vkDestroyBuffer(device, uniformBuffer.second[i].bufferID, nullptr);
+            vkFreeMemory(device, uniformBuffer.second[i].bufferMemoryID, nullptr);
+        }
     }
+    
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 }
 
@@ -1003,14 +1006,23 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
 }
 
+/// <summary>
+/// Create a BufferMemory that holds a uniform value for each framebuffer in the swap chain
+/// </summary>
+/// <typeparam name="T">The type of Uniform</typeparam>
+/// <returns>A vector containing the info of the BUffers for Uniforms</returns>
 template<class T>
 std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
+    // make a vector, since u need once for each swap chain
     VkDeviceSize bufferSize = sizeof(T);
 
     std::vector<BufferMemory> uniformBuffers;
 
     // swap chains are for things like double buffering
-    uniformBuffers.resize(swapChainImages.size()); 
+    uniformBuffers.resize(swapChainImages.size());
+
+    BufferMemory uniformBufferData;
+    uniformBufferData.bufferMemoryLength = sizeof(T);
 
     // duplicate the uniform for each buffer u have in ur swap chains
     // since swap chain buffers are async
@@ -1018,6 +1030,7 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
             uniformBuffers[i].bufferID, uniformBuffers[i].bufferMemoryID);
+
         uniformBuffers[i].bufferMemoryLength = bufferSize;
     }
 
@@ -1058,38 +1071,47 @@ void VulkanRenderer::createDescriptorSets() {
     }
 
     //auto uniformBuffers = createUniformBuffers<CameraUBO>();
-    for (size_t i = 0; i < swapChainImages.size(); i++) {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uniformBuffers[i].bufferID;
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(CameraUBO);
+    for (auto uniformBuffer : uniformBuffers) {
+        for (size_t i = 0; i < swapChainImages.size(); i++) {
+            VkDescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = uniformBuffer.second[i].bufferID;
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(CameraUBO);
 
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = texture2D.imageView;
-        imageInfo.sampler = texture2D.sampler;
+            VkDescriptorImageInfo imageInfo{};
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = texture2D.imageView;
+            imageInfo.sampler = texture2D.sampler;
 
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+            std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets[i];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
+            descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[0].dstSet = descriptorSets[i];
+            descriptorWrites[0].dstBinding = 0;
+            descriptorWrites[0].dstArrayElement = 0;
+            descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrites[0].descriptorCount = 1;
+            descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;
-        vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+            descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[1].dstSet = descriptorSets[i];
+            descriptorWrites[1].dstBinding = 1;
+            descriptorWrites[1].dstArrayElement = 0;
+            descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrites[1].descriptorCount = 1;
+            descriptorWrites[1].pImageInfo = &imageInfo;
+            vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        }
     }
 }
-
+/// <summary>
+/// Create the buffer in VRAM
+/// </summary>
+/// <param name="size">The size of the buffer</param>
+/// <param name="usage">Usage flags for optimiztions and other things (don't touch it)</param>
+/// <param name="properties"></param>
+/// <param name="buffer">Save buffer ID in this value</param>
+/// <param name="bufferMemory">Save bufferMemory ID in this value</param>
 void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1257,10 +1279,12 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
     //auto uniformBuffers = createUniformBuffers<CameraUBO>();
-    void* data;
-    vkMapMemory(device, uniformBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-    memcpy(data, &cameraUBO, sizeof(CameraUBO));
-    vkUnmapMemory(device, uniformBuffers[currentImage].bufferMemoryID);
+    for (auto uniformBuffer : uniformBuffers) {
+        void* data;
+        vkMapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
+        memcpy(data, &cameraUBO, sizeof(CameraUBO));
+        vkUnmapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID);
+    }
 }
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code) {
