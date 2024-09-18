@@ -112,6 +112,12 @@ struct SwapChainSupportDetails {
         };
     }
 
+/// <summary>
+/// Holds all the data needed to keep a buffer
+///     bufferID - Opaque handle to a buffer object
+///     bufferMemoryID - Opaque handle to a device memory object
+///     bufferMemoryLength - Vulkan device memory size and offsets
+/// </summary>
 struct BufferMemory {
     VkBuffer bufferID;
     VkDeviceMemory bufferMemoryID;
@@ -211,8 +217,6 @@ private: /// Private member variables
     Sampler2D texture2D;
     CameraUBO cameraUBO;
     IndexedVertexBuffer indexedVertexBuffer;
-    //std::vector<BufferMemory> uniformBuffers;
-    // Uniforms
     std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
 
 private: /// Member functions

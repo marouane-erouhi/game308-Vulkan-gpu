@@ -34,7 +34,7 @@ bool VulkanRenderer::OnCreate(){
     
     pickPhysicalDevice();
     createLogicalDevice();
-    createSwapChain(); // for things like double buffer and other things
+    createSwapChain(); // create vulkan's version of frame buffers - used for things like bouble buffering
     createImageViews();
     createRenderPass();
     createDescriptorSetLayout();
@@ -216,7 +216,6 @@ void VulkanRenderer::cleanupSwapChain() {
 
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-    //auto uniformBuffers = createUniformBuffers<CameraUBO>();
     for (auto uniformBuffer : uniformBuffers) {
         for (size_t i = 0; i < swapChainImages.size(); i++) {
             vkDestroyBuffer(device, uniformBuffer.second[i].bufferID, nullptr);
@@ -1006,8 +1005,9 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
 }
 
+////OLD: Create a BufferMemory that holds a uniform value for each framebuffer in the swap chain
 /// <summary>
-/// Create a BufferMemory that holds a uniform value for each framebuffer in the swap chain
+/// Create a Buffer and it's respective memory for each swap chain
 /// </summary>
 /// <typeparam name="T">The type of Uniform</typeparam>
 /// <returns>A vector containing the info of the BUffers for Uniforms</returns>
@@ -1058,7 +1058,9 @@ void VulkanRenderer::createDescriptorPool() {
 }
 
 void VulkanRenderer::createDescriptorSets() {
+    // it looks like this is creating a discriptor set for each swap chain
     std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
+
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
@@ -1119,10 +1121,12 @@ void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, V
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+    /// actually creates the Buffer
     if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
         throw std::runtime_error("failed to create buffer!");
     }
 
+    /// VkMemoryRequirements - Structure specifying memory requirements: includes size, alignment and memoryTypeBits
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
 
@@ -1131,9 +1135,11 @@ void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, V
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
+    /// Allocate The memory
     if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate buffer memory!");
     }
+    /// bind device memory to buffer object
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
@@ -1278,7 +1284,6 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-    //auto uniformBuffers = createUniformBuffers<CameraUBO>();
     for (auto uniformBuffer : uniformBuffers) {
         void* data;
         vkMapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
