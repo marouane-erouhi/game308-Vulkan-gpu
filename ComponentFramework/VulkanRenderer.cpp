@@ -1330,7 +1330,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
     for (auto uniformBuffer : uniformBuffers) {
         void* data;
         vkMapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-        memcpy(data, &cameraUBO, sizeof(CameraUBO));
+        memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
         vkUnmapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID);
     }
 }
