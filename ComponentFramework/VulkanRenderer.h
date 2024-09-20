@@ -218,6 +218,7 @@ private: /// Private member variables
     CameraUBO cameraUBO;
     IndexedVertexBuffer indexedVertexBuffer;
     std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
+    //std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
 
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);
