@@ -215,7 +215,7 @@ private: /// Private member variables
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     Sampler2D texture2D;
-    CameraUBO cameraUBO;
+    CameraUBO cameraUBOdata;
     IndexedVertexBuffer indexedVertexBuffer;
     std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
     //std::vector<BufferMemory> cameraUboBuffers; // for testing purposes

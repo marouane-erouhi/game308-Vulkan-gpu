@@ -77,11 +77,15 @@ void VulkanRenderer::RecreateSwapChain() {
     CreateGraphicsPipeline("shaders/simplePhong.vert.spv","shaders/simplePhong.frag.spv");
     createDepthResources();
     createFramebuffers();
+
+    // Uniforms --------
     uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     //cameraUboBuffers = createUniformBuffers<CameraUBO>(); // for testing purposes
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
+
+    // Uniforms --------
 }
 
 void VulkanRenderer::OnDestroy() {
@@ -1014,7 +1018,6 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
 }
 
-////OLD: Create a BufferMemory that holds a uniform value for each framebuffer in the swap chain
 /// <summary>
 /// Create a Buffer and it's respective memory for each swap chain
 /// </summary>
@@ -1310,11 +1313,11 @@ void VulkanRenderer::createSyncObjects() {
 }
 
 void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model, const Vec4& lightPos) {
-    cameraUBO.projectionMatrix = projection;
-    cameraUBO.viewMatrix = view;
-    cameraUBO.modelMatrix = model;
-    cameraUBO.projectionMatrix[5] *= -1.0f;
-    cameraUBO.lightPos = lightPos;
+    cameraUBOdata.projectionMatrix = projection;
+    cameraUBOdata.viewMatrix = view;
+    cameraUBOdata.modelMatrix = model;
+    cameraUBOdata.projectionMatrix[5] *= -1.0f;
+    cameraUBOdata.lightPos = lightPos;
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
