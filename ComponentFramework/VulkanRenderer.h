@@ -140,6 +140,12 @@ struct CameraUBO { /// A UniformBufferObject
     Matrix4 modelMatrix; /// This doesn't belong here. We'll fix it.
     Vec4 lightPos;
 };
+struct LightUBO {
+    Vec4 position;
+    Vec4 diffuse;
+    Vec4 specular;
+    Vec4 ambient;
+};
 
 struct Sampler2D {
     VkImage image;
@@ -216,9 +222,11 @@ private: /// Private member variables
     VkQueue presentQueue;
     Sampler2D texture2D;
     CameraUBO cameraUBOdata;
+    LightUBO lightUboData;
     IndexedVertexBuffer indexedVertexBuffer;
     //std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
     std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
+    std::vector<BufferMemory> lightUboBuffers; // for testing purposes
 
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);

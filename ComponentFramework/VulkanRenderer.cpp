@@ -51,6 +51,7 @@ bool VulkanRenderer::OnCreate(){
     // create the CameraUBO buffer in GPU
     //uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     cameraUboBuffers = createUniformBuffers<CameraUBO>();
+    lightUboBuffers = createUniformBuffers<LightUBO>();
 
     createDescriptorSets();
     // command buffers hold all the draw calls u need to do for that frame
@@ -81,6 +82,7 @@ void VulkanRenderer::RecreateSwapChain() {
     // Uniforms --------
     //uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     cameraUboBuffers = createUniformBuffers<CameraUBO>(); // for testing purposes
+    lightUboBuffers = createUniformBuffers<LightUBO>(); // for testing purposes
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
@@ -225,6 +227,12 @@ void VulkanRenderer::cleanupSwapChain() {
 
     // cleanup camera buffer // for testing purposes
     for (auto uniformBuffer : cameraUboBuffers) {
+        vkDestroyBuffer(device, uniformBuffer.bufferID, nullptr);
+        vkFreeMemory(device, uniformBuffer.bufferMemoryID, nullptr);
+    }
+
+    // cleanup light
+    for (auto uniformBuffer : lightUboBuffers) {
         vkDestroyBuffer(device, uniformBuffer.bufferID, nullptr);
         vkFreeMemory(device, uniformBuffer.bufferMemoryID, nullptr);
     }
@@ -1043,13 +1051,20 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
     return uniformBuffers;
 }
 
-#define TOTAL_NUMBER_OF_DESCRIPTORS 2
+#define TOTAL_NUMBER_OF_DESCRIPTORS 3
 void VulkanRenderer::createDescriptorPool() {
     std::array<VkDescriptorPoolSize, TOTAL_NUMBER_OF_DESCRIPTORS> poolSizes{};
+    // camera ubo
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+    // light
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+    // texture
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -1080,13 +1095,13 @@ void VulkanRenderer::createDescriptorSets() {
 
     // this is for only the cameraUBO // for testing purposes
     for (size_t i = 0; i < swapChainImages.size(); i++) {
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+        std::array<VkWriteDescriptorSet, TOTAL_NUMBER_OF_DESCRIPTORS> descriptorWrites{};
 
         // camera -- Deiscriptr set
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = cameraUboBuffers[i].bufferID;
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(CameraUBO);
+        VkDescriptorBufferInfo cameraBufferInfo{};
+        cameraBufferInfo.buffer = cameraUboBuffers[i].bufferID;
+        cameraBufferInfo.offset = 0;
+        cameraBufferInfo.range = sizeof(CameraUBO);
 
         descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[0].dstSet = descriptorSets[i];
@@ -1094,7 +1109,21 @@ void VulkanRenderer::createDescriptorSets() {
         descriptorWrites[0].dstArrayElement = 0;
         descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
+        descriptorWrites[0].pBufferInfo = &cameraBufferInfo;
+
+        // light set -------
+        VkDescriptorBufferInfo lightBufferInfo{};
+        lightBufferInfo.buffer = lightUboBuffers[i].bufferID;
+        lightBufferInfo.offset = 0;
+        lightBufferInfo.range = sizeof(LightUBO);
+
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = descriptorSets[i];
+        descriptorWrites[1].dstBinding = 0;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pBufferInfo = &lightBufferInfo;
 
         // Image --- Set
         VkDescriptorImageInfo imageInfo{};
@@ -1102,48 +1131,15 @@ void VulkanRenderer::createDescriptorSets() {
         imageInfo.imageView = texture2D.imageView;
         imageInfo.sampler = texture2D.sampler;
 
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;
+        descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[2].dstSet = descriptorSets[i];
+        descriptorWrites[2].dstBinding = 1;
+        descriptorWrites[2].dstArrayElement = 0;
+        descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[2].descriptorCount = 1;
+        descriptorWrites[2].pImageInfo = &imageInfo;
         vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
-
-    //for (auto uniformBuffer : uniformBuffers) {
-    //    for (size_t i = 0; i < swapChainImages.size(); i++) {
-    //        VkDescriptorBufferInfo bufferInfo{};
-    //        bufferInfo.buffer = uniformBuffer.second[i].bufferID;
-    //        bufferInfo.offset = 0;
-    //        bufferInfo.range = sizeof(CameraUBO); // THIS is a bug TODO, need to be the size of the original object of the buffer
-
-    //        VkDescriptorImageInfo imageInfo{};
-    //        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    //        imageInfo.imageView = texture2D.imageView;
-    //        imageInfo.sampler = texture2D.sampler;
-
-    //        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-    //        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    //        descriptorWrites[0].dstSet = descriptorSets[i];
-    //        descriptorWrites[0].dstBinding = 0;
-    //        descriptorWrites[0].dstArrayElement = 0;
-    //        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    //        descriptorWrites[0].descriptorCount = 1;
-    //        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-    //        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    //        descriptorWrites[1].dstSet = descriptorSets[i];
-    //        descriptorWrites[1].dstBinding = 1;
-    //        descriptorWrites[1].dstArrayElement = 0;
-    //        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    //        descriptorWrites[1].descriptorCount = 1;
-    //        descriptorWrites[1].pImageInfo = &imageInfo;
-    //        vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-    //    }
-    //}
 }
 /// <summary>
 /// Create the buffer in VRAM
@@ -1329,12 +1325,11 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
     memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
     vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
 
-    //for (auto uniformBuffer : uniformBuffers) {
-    //    void* data;
-    //    vkMapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-    //    memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
-    //    vkUnmapMemory(device, uniformBuffer.second[currentImage].bufferMemoryID);
-    //}
+    // cleanup the light
+    //void* data;
+    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightUBO), 0, &data);
+    memcpy(data, &lightUboData, sizeof(LightUBO));
+    vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
 }
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code) {
