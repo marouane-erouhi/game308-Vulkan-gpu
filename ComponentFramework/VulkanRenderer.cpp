@@ -48,6 +48,7 @@ bool VulkanRenderer::OnCreate(){
     LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     // 
     CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
+    // create the CameraUBO buffer in GPU
     uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
 
     createDescriptorSets();
@@ -1013,18 +1014,12 @@ void VulkanRenderer::createIndexBuffer(IndexedVertexBuffer &indexedBufferMemory,
 /// <returns>A vector containing the info of the BUffers for Uniforms</returns>
 template<class T>
 std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
-    // make a vector, since u need once for each swap chain
+    // make a vector, since u need a buffer for each swap chain
+    std::vector<BufferMemory> uniformBuffers(swapChainImages.size());
+
     VkDeviceSize bufferSize = sizeof(T);
 
-    std::vector<BufferMemory> uniformBuffers;
-
-    // swap chains are for things like double buffering
-    uniformBuffers.resize(swapChainImages.size());
-
-    BufferMemory uniformBufferData;
-    uniformBufferData.bufferMemoryLength = sizeof(T);
-
-    // duplicate the uniform for each buffer u have in ur swap chains
+    // duplicate the uniform for each swap chain
     // since swap chain buffers are async
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
