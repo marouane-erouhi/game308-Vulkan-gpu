@@ -8,7 +8,7 @@ layout (location = 3) in vec2 fragTexCoords;
 
 layout (location = 0) out vec4 fragColor;
 
-layout(binding = 1) uniform sampler2D texSampler;
+layout(binding = 2) uniform sampler2D texSampler;
 
 void main() { 
 	vec4 ks = vec4(0.2, 0.2, 0.6, 0.0);

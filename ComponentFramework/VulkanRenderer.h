@@ -236,6 +236,8 @@ private: /// Member functions
     void createSwapChain();
     void createImageViews();
     
+    //template <class T>
+    //void updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory);
     void updateUniformBuffer(uint32_t currentImage);
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createRenderPass();

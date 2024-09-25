@@ -5,6 +5,9 @@ layout (location = 0) in  vec4 vVertex;
 layout (location = 1) in  vec4 vNormal;
 layout (location = 2) in  vec2 texCoords;
 
+// the binding value is described in the VkDescriptorSetLayoutBinding structure, 
+// created in createDescriptorSetLayout function
+// binding is set in the Descriptor set 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 projectionMatrix;
     mat4 viewMatrix;
