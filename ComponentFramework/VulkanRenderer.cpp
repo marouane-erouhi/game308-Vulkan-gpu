@@ -1332,12 +1332,18 @@ void VulkanRenderer::createSyncObjects() {
     }
 }
 
-void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model, const Vec4& lightPos) {
+void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model) {
     cameraUBOdata.projectionMatrix = projection;
     cameraUBOdata.viewMatrix = view;
     cameraUBOdata.modelMatrix = model;
     cameraUBOdata.projectionMatrix[5] *= -1.0f;
-    cameraUBOdata.lightPos = lightPos;
+}
+
+void VulkanRenderer::SetLightsUbo(const Vec4& pos, const Vec4& diffuse, const Vec4& specular, const Vec4& ambient) {
+    lightUboData.position = pos;
+    lightUboData.diffuse = diffuse;
+    lightUboData.specular = specular;
+    lightUboData.ambient = ambient;
 }
 
 /// Instead of passing the data ly Scott recomended, I will do it diffrently
@@ -1350,13 +1356,13 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
 //}
 ///OLD ^^^^
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-    // cleanup the camera
+    // camera ubo
     void* data;
     vkMapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
     memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
     vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
 
-    // cleanup the light
+    // light ubo
     //void* data;
     vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightUBO), 0, &data);
     memcpy(data, &lightUboData, sizeof(LightUBO));

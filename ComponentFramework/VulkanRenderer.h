@@ -172,7 +172,9 @@ public: /// Member functions
     void Render();
     
 
-    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model, const Vec4& lightPos);
+    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
+    void SetLightsUbo(const Vec4& pos, const Vec4& diffuse, const Vec4& specular, const Vec4& ambient);
+
     void Create2DTextureImage(const char* texureFile);
     void CreateGraphicsPipeline(const char* vertFile, const char* fragFile);
     void LoadModelIndexed(const char* filename);
