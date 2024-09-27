@@ -1367,8 +1367,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
     memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
     vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
 
-    // light ubo
-    //void* data;
+    // light1 ubo
     vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
     memcpy(data, &lightUboData, sizeof(LightsUBO));
     vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
