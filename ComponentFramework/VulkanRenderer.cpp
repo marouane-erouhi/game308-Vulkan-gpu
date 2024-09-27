@@ -51,7 +51,7 @@ bool VulkanRenderer::OnCreate(){
     // create the CameraUBO buffer in GPU
     //uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     cameraUboBuffers = createUniformBuffers<CameraUBO>();
-    lightUboBuffers = createUniformBuffers<LightUBO>();
+    lightUboBuffers = createUniformBuffers<LightsUBO>();
 
     createDescriptorSets();
     // command buffers hold all the draw calls u need to do for that frame
@@ -82,7 +82,7 @@ void VulkanRenderer::RecreateSwapChain() {
     // Uniforms --------
     //uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
     cameraUboBuffers = createUniformBuffers<CameraUBO>(); // for testing purposes
-    lightUboBuffers = createUniformBuffers<LightUBO>(); // for testing purposes
+    lightUboBuffers = createUniformBuffers<LightsUBO>(); // for testing purposes
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
@@ -1129,7 +1129,7 @@ void VulkanRenderer::createDescriptorSets() {
         VkDescriptorBufferInfo lightUboLayoutBinding{};
         lightUboLayoutBinding.buffer = lightUboBuffers[i].bufferID;
         lightUboLayoutBinding.offset = 0;
-        lightUboLayoutBinding.range = sizeof(LightUBO);
+        lightUboLayoutBinding.range = sizeof(LightsUBO);
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[1].dstSet = descriptorSets[i];
@@ -1364,8 +1364,8 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
 
     // light ubo
     //void* data;
-    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightUBO), 0, &data);
-    memcpy(data, &lightUboData, sizeof(LightUBO));
+    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
+    memcpy(data, &lightUboData, sizeof(LightsUBO));
     vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
 }
 

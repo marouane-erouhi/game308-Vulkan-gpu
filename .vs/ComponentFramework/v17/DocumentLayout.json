@@ -3,32 +3,28 @@
   "WorkspaceRootPath": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\VulkanRenderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\VulkanRenderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\Scene0.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\VulkanRenderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.frag||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\shaders\\simplePhong.frag||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.frag||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\shaders\\phong.frag||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.vert||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\shaders\\phong.vert||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.vert||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\shaders\\simplePhong.vert||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\Scene0.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.frag||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\shaders\\simplePhong.frag||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{614C2865-E38B-423B-8A72-E9D57BC43A73}|ComponentFramework\\ComponentFramework.vcxproj|solutionrelative:ComponentFramework\\Scene0.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -37,8 +33,8 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "DockedWidth": 297,
+          "SelectedChildIndex": 12,
           "Children": [
             {
               "$type": "Bookmark",
@@ -51,10 +47,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Bookmark",
@@ -78,89 +70,81 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "phong.vert",
+              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.vert",
+              "RelativeDocumentMoniker": "ComponentFramework\\shaders\\phong.vert",
+              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.vert",
+              "RelativeToolTip": "ComponentFramework\\shaders\\phong.vert",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-09-25T19:08:07.046Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "phong.frag",
-              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.frag",
-              "RelativeDocumentMoniker": "ComponentFramework\\shaders\\phong.frag",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\phong.frag",
-              "RelativeToolTip": "ComponentFramework\\shaders\\phong.frag",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-09-13T16:48:15.801Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "simplePhong.vert",
-              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.vert",
-              "RelativeDocumentMoniker": "ComponentFramework\\shaders\\simplePhong.vert",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.vert",
-              "RelativeToolTip": "ComponentFramework\\shaders\\simplePhong.vert",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-09-13T15:19:14.299Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "simplePhong.frag",
               "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.frag",
               "RelativeDocumentMoniker": "ComponentFramework\\shaders\\simplePhong.frag",
               "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.frag",
               "RelativeToolTip": "ComponentFramework\\shaders\\simplePhong.frag",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAoAAAA",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAABkAAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-09-11T19:05:25.845Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Scene0.h",
-              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.h",
-              "RelativeDocumentMoniker": "ComponentFramework\\Scene0.h",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.h",
-              "RelativeToolTip": "ComponentFramework\\Scene0.h",
-              "ViewState": "AQIAAAEAAAAAAAAAAAAiwBMAAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-13T15:10:12.624Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "VulkanRenderer.h",
-              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h",
-              "RelativeDocumentMoniker": "ComponentFramework\\VulkanRenderer.h",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h",
-              "RelativeToolTip": "ComponentFramework\\VulkanRenderer.h",
-              "ViewState": "AQIAAMkAAAAAAAAAAAAgwNkAAAAbAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-11T18:21:17.375Z",
+              "WhenOpened": "2024-09-25T18:55:41.716Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
+              "Title": "simplePhong.vert",
+              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.vert",
+              "RelativeDocumentMoniker": "ComponentFramework\\shaders\\simplePhong.vert",
+              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\shaders\\simplePhong.vert",
+              "RelativeToolTip": "ComponentFramework\\shaders\\simplePhong.vert",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACUAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-09-25T18:37:02.213Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Scene0.cpp",
+              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp",
+              "RelativeDocumentMoniker": "ComponentFramework\\Scene0.cpp",
+              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp",
+              "RelativeToolTip": "ComponentFramework\\Scene0.cpp",
+              "ViewState": "AQIAADgAAAAAAAAAAAD4v0UAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-09-25T18:46:57.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "VulkanRenderer.cpp",
               "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.cpp",
               "RelativeDocumentMoniker": "ComponentFramework\\VulkanRenderer.cpp",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.cpp*",
-              "RelativeToolTip": "ComponentFramework\\VulkanRenderer.cpp*",
-              "ViewState": "AQIAACMFAAAAAAAAAIAwwDQFAAAjAAAA",
+              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.cpp",
+              "RelativeToolTip": "ComponentFramework\\VulkanRenderer.cpp",
+              "ViewState": "AQIAAIAEAAAAAAAAAAAAAIoEAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-06T15:40:36.008Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Scene0.cpp",
-              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp",
-              "RelativeDocumentMoniker": "ComponentFramework\\Scene0.cpp",
-              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\Scene0.cpp",
-              "RelativeToolTip": "ComponentFramework\\Scene0.cpp",
-              "ViewState": "AQIAADkAAAAAAAAAAAAAAEYAAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-09-06T16:19:55.125Z"
+              "DocumentIndex": 1,
+              "Title": "VulkanRenderer.h",
+              "DocumentMoniker": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h",
+              "RelativeDocumentMoniker": "ComponentFramework\\VulkanRenderer.h",
+              "ToolTip": "D:\\0Classes\\GPU-Vulkan-Game308\\game308-Vulkan-gpu\\ComponentFramework\\VulkanRenderer.h",
+              "RelativeToolTip": "ComponentFramework\\VulkanRenderer.h",
+              "ViewState": "AQIAALoAAAAAAAAAAAAjwMQAAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-09-11T18:21:17.375Z",
+              "EditorCaption": ""
             }
           ]
         }
