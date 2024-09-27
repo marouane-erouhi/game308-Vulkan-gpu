@@ -13,7 +13,7 @@ layout(binding = 2) uniform sampler2D texSampler;
 void main() { 
 	vec4 ks = vec4(0.2, 0.2, 0.6, 0.0);
 	vec4 kd = vec4(0.2, 0.2, 0.6, 0.0); 
-	vec4 ka = 0.1 * kd;
+	vec4 ka = 0.1 * kd; // ambient
 	vec4 kt = texture(texSampler,fragTexCoords); 
 
 	float diff = max(dot(vertNormal, lightDir), 0.0);

@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "Vector.h"
 #include "Renderer.h"
+#include "VulkanRenderer.h"
 #include "Camera.h"
 using namespace MATH;
 
@@ -15,6 +16,8 @@ private:
 	Renderer *renderer;
 	Camera *camera;
 	Matrix4 mariosModelMatrix;
+
+	std::array<LightData, 2> lights;
 public:
 	explicit Scene0(Renderer* renderer_);
 	virtual ~Scene0();

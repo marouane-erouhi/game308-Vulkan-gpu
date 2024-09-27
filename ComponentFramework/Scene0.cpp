@@ -22,6 +22,19 @@ Scene0::~Scene0() {
 bool Scene0::OnCreate() {
 	int width = 0, height = 0;
 	float aspectRatio;
+
+	// create lights
+	LightData lightData = {};
+	lightData.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+	lightData.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
+	lightData.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+
+	LightData lightData2 = {};
+	lightData2.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+	lightData2.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
+	lightData2.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+
+
 	switch (renderer->getRendererType()){
 	case RendererType::VULKAN:
 		
@@ -30,6 +43,8 @@ bool Scene0::OnCreate() {
 		camera->Perspective(45.0f, aspectRatio, 0.5f, 20.0f);
 		camera->LookAt(Vec3(0.0f, 0.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		
+		lights = { lightData, lightData2 };
+
 		break;
 
 	case RendererType::OPENGL:
@@ -67,7 +82,8 @@ void Scene0::Render() const {
 		VulkanRenderer* vRenderer;
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix(), mariosModelMatrix);
-		vRenderer->SetLightsUbo(Vec4(5.0f, 5.0f, 5.0f, 0.0f), Vec4(1.0, 1.0, 1.0, 0.0), Vec4(1.0, 1.0, 1.0, 0.0), Vec4(1.0, 1.0, 1.0, 0.0));
+
+		vRenderer->SetLightsUbo(lights[0], lights[1], Vec4(1.0, 1.0, 1.0, 0.0));
 		vRenderer->Render();
 		break;
 

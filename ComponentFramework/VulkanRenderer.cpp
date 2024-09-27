@@ -1339,12 +1339,17 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
     cameraUBOdata.projectionMatrix[5] *= -1.0f;
 }
 
-void VulkanRenderer::SetLightsUbo(const Vec4& pos, const Vec4& diffuse, const Vec4& specular, const Vec4& ambient) {
-    lightUboData.position = pos;
-    lightUboData.diffuse = diffuse;
-    lightUboData.specular = specular;
+void VulkanRenderer::SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient) {
+    lightUboData.lightsData[0] = lightData1;
+    lightUboData.lightsData[1] = lightData2;
     lightUboData.ambient = ambient;
 }
+
+//void VulkanRenderer::SetLightsUbo(const LightData& lightData, const Vec4& ambient) {
+//    lightUboData.lightsData[0] = lightData;
+//    lightUboData.lightsData[1] = lightData;
+//    lightUboData.ambient = ambient;
+//}
 
 /// Instead of passing the data ly Scott recomended, I will do it diffrently
 //template <class T>

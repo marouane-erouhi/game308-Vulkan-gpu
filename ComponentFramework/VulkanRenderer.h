@@ -140,16 +140,15 @@ struct CameraUBO { /// A UniformBufferObject
     Matrix4 modelMatrix; /// This doesn't belong here. We'll fix it.
     Vec4 lightPos;
 };
-struct LightsUBO {
-    std::array<LightData, 2> lightsData; ///  TODO: change the number here to be more dynamic later
-    Vec4 ambient;
-};
 struct LightData {
     Vec4 position;
     Vec4 diffuse;
     Vec4 specular;
 };
-
+struct LightsUBO {
+    std::array<LightData, 2> lightsData; ///  TODO: change the number here to be more dynamic later
+    Vec4 ambient;
+};
 
 struct Sampler2D {
     VkImage image;
@@ -177,7 +176,10 @@ public: /// Member functions
     
 
     void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
-    void SetLightsUbo(const Vec4& pos, const Vec4& diffuse, const Vec4& specular, const Vec4& ambient);
+    void SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient);
+
+    // AddLight
+    // set lights 
 
     void Create2DTextureImage(const char* texureFile);
     void CreateGraphicsPipeline(const char* vertFile, const char* fragFile);

@@ -37,6 +37,8 @@ void main() {
 	vec3 vertPos = vec3(cameraUbo.viewMatrix * cameraUbo.modelMatrix * vVertex); /// This is the position of the vertex from the origin
 	vec3 vertDir = normalize(vertPos);
 	eyeDir = -vertDir;
+
+	// account for multiple lights here
 	lightDir = normalize(vec3(lightsUbo.position) - vertPos); /// Create the light direction.
 	
 	gl_Position =  cameraUbo.projectionMatrix * cameraUbo.viewMatrix * cameraUbo.modelMatrix * vVertex; 
