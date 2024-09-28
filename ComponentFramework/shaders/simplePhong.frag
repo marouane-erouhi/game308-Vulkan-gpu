@@ -6,13 +6,15 @@ layout (location = 1) in vec3 lightDir;
 layout (location = 2) in vec3 eyeDir; 
 layout (location = 3) in vec2 fragTexCoords;
 
+layout (location = 4) in vec4 ambient;
+
 layout (location = 0) out vec4 fragColor;
 
 layout(binding = 2) uniform sampler2D texSampler;
 
 void main() { 
 	vec4 ks = vec4(0.2, 0.2, 0.6, 0.0);
-	vec4 kd = vec4(0.2, 0.2, 0.6, 0.0); 
+	vec4 kd = ambient;//vec4(0.2, 0.2, 0.6, 0.0); 
 	vec4 ka = 0.1 * kd; // ambient
 	vec4 kt = texture(texSampler,fragTexCoords); 
 

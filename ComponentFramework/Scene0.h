@@ -16,6 +16,7 @@ private:
 	Renderer *renderer;
 	Camera *camera;
 	Matrix4 mariosModelMatrix;
+	PushConstant pushConstant{};
 
 	std::array<LightData, 2> lights;
 public:
@@ -27,6 +28,7 @@ public:
 	virtual void Update(const float deltaTime) override;
 	virtual void Render() const override;
 	virtual void HandleEvents(const SDL_Event &sdlEvent) override;
+	void SetPushConstantModelMatrix(const Matrix4& modelMatrix);
 };
 
 

@@ -149,6 +149,10 @@ struct LightsUBO {
     LightData lightsData[2]; ///  TODO: change the number here to be more dynamic later
     Vec4 ambient;
 };
+struct PushConstant {
+    Matrix4 modelMatrix;
+    Matrix4 normalMatrix;
+};
 
 struct Sampler2D {
     VkImage image;
@@ -175,9 +179,10 @@ public: /// Member functions
     void Render();
     
 
-    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
+    void SetCameraUBO(const Matrix4& projection, const Matrix4& view);
+    //void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
     void SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient);
-
+    void SetPushConstantModelMatrix(const Matrix4& modelMatrix_);
     // AddLight
     // set lights 
 
@@ -185,6 +190,9 @@ public: /// Member functions
     void CreateGraphicsPipeline(const char* vertFile, const char* fragFile);
     void LoadModelIndexed(const char* filename);
     void RecreateSwapChain();
+
+    void setupPushConstant(VkPipelineLayoutCreateInfo& pipelineLayoutInfo);
+    void sendPushConstant(int i);
 
 private: /// Private member variables
     const size_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -236,6 +244,8 @@ private: /// Private member variables
     std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
     std::vector<BufferMemory> lightUboBuffers; // for testing purposes
 
+    PushConstant modelMatrixPushConstant;
+
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);
     void createInstance();
@@ -244,9 +254,9 @@ private: /// Member functions
     void createSwapChain();
     void createImageViews();
     
-    //template <class T>
-    //void updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory);
-    void updateUniformBuffer(uint32_t currentImage);
+    template <class T>
+    void updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory);
+    void updateUniformBuffer1(uint32_t currentImage); // remove when done
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createRenderPass();
     void createDescriptorSetLayout();

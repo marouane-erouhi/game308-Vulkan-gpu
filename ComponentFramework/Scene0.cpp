@@ -26,8 +26,8 @@ bool Scene0::OnCreate() {
 	// create lights
 	LightData lightData = {};
 	lightData.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lightData.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
-	lightData.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+	lightData.diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
+	lightData.specular = Vec4(1.0, 0.0, 0.0, 0.0);
 
 	LightData lightData2 = {};
 	lightData2.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
@@ -81,7 +81,15 @@ void Scene0::Render() const {
 	case RendererType::VULKAN:
 		VulkanRenderer* vRenderer;
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
-		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix(), mariosModelMatrix);
+		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix()/*, mariosModelMatrix*/);
+
+		// push constant---------------
+		//pushConstant.modelMatrix = mariosModelMatrix;
+		//// mat3 normalMatrix = mat3(transpose(inverse(push.modelMatrix)));
+		//pushConstant.normalMatrix = MMath::transpose(MMath::inverse(mariosModelMatrix));
+		vRenderer->SetPushConstantModelMatrix(mariosModelMatrix);
+
+		// push contant end --------------
 
 		vRenderer->SetLightsUbo(lights[0], lights[1], Vec4(1.0, 1.0, 1.0, 0.0));
 		vRenderer->Render();
