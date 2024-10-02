@@ -77,7 +77,8 @@ void Scene0::Update(const float deltaTime) {
 	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
 	
 	lights[0].position = Vec3(sin(elapsedTime) * 5.0, 0, 0);
-	lights[1].position = Vec3(0, cos(elapsedTime) * 5.0, 0);
+	lights[1].position = Vec3(0, cos(elapsedTime) * 10.0, 0);
+	lights[1].position = Vec3(0, 0, sin(elapsedTime) * 20.0);
 }
 
 void Scene0::Render() const {

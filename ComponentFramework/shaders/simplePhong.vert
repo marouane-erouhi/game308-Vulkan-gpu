@@ -22,8 +22,7 @@ struct LightData {
     vec4 specular;
 };
 layout(binding = 1) uniform LightsUniformBufferObject {
-    LightData lightData1;
-    LightData lightData2;
+    LightData lightData[LIGHT_COUNT];
     vec4 ambient;
 } lightsUbo;
 
@@ -45,9 +44,8 @@ void main() {
 
 	// account for multiple lights here
 	for(int i=0;i<LIGHT_COUNT;i++){
-		lightDir[i] = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
+		lightDir[i] = normalize(vec3(lightsUbo.lightData[i].position) - vertPos); /// Create the light direction.
 	}
-//		lightDir = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
 	
 	gl_Position =  cameraUbo.projectionMatrix * cameraUbo.viewMatrix * cameraUbo.modelMatrix * vVertex; 
 }

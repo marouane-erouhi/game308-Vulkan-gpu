@@ -19,7 +19,7 @@ struct LightData {
     vec4 specular;
 };
 layout(binding = 1) uniform LightsUniformBufferObject {
-	LightData lightData[3];
+	LightData lightData[LIGHT_COUNT];
     vec4 ambient;
 } lightsUbo;
 
@@ -29,15 +29,12 @@ void main() {
 	vec4 kt = texture(texSampler, fragTexCoords);
 
 	for(int i = 0; i < LIGHT_COUNT; i++) {
-		// Normalize the light direction for current light
-		vec3 normLightDir = normalize(lightDir[i]);
-
 		// Diffuse calculation
-		float diff = max(dot(vertNormal, normLightDir), 0.0);
+		float diff = max(dot(vertNormal, lightDir[i]), 0.0);
 		vec4 diffuse = diff * lightsUbo.lightData[i].diffuse;
 
 		// Specular calculation
-		vec3 reflection = normalize(reflect(-normLightDir, vertNormal));
+		vec3 reflection = normalize(reflect(-lightDir[i], vertNormal));
 		float spec = pow(max(dot(eyeDir, reflection), 0.0), 14.0);
 		vec4 specular = spec * lightsUbo.lightData[i].specular;
 
