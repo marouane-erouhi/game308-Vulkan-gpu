@@ -137,9 +137,9 @@ void VulkanRenderer::Render() {
     }
 
     // Camerea and light
-    updateUniformBuffer(imageIndex);
-    //updateUniformBuffer<CameraUBO>(cameraUBOdata, cameraUboBuffers[imageIndex]);
-    //updateUniformBuffer<LightUBO>(lightUboData, lightUboBuffers[imageIndex]);
+    //updateUniformBuffer(imageIndex);
+    updateUniformBuffer<CameraUBO>(cameraUBOdata, cameraUboBuffers[imageIndex]);
+    updateUniformBuffer<LightsUBO>(lightUboData, lightUboBuffers[imageIndex]);
 
     if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -1360,26 +1360,26 @@ void VulkanRenderer::SetLightsUbo(const LightData* lightsData, const Vec4& ambie
 //}
 
 /// Instead of passing the data ly Scott recomended, I will do it diffrently
-//template <class T>
-//void VulkanRenderer::updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory) {
-//    void* data;
-//    vkMapMemory(device, bufferMemory.bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-//    memcpy(data, srcData, sizeof(CameraUBO));
-//    vkUnmapMemory(device, bufferMemory.bufferMemoryID);
-//}
-///OLD ^^^^
-void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-    // camera ubo
+template <class T>
+void VulkanRenderer::updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory) {
     void* data;
-    vkMapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-    memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
-    vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
-
-    // lights ubo
-    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
-    memcpy(data, &lightUboData, sizeof(LightsUBO));
-    vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
+    vkMapMemory(device, bufferMemory.bufferMemoryID, 0, sizeof(T), 0, &data);
+    memcpy(data, &srcData, sizeof(T));
+    vkUnmapMemory(device, bufferMemory.bufferMemoryID);
 }
+///OLD ^^^^
+//void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
+//    // camera ubo
+//    void* data;
+//    vkMapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
+//    memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
+//    vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
+//
+//    // lights ubo
+//    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
+//    memcpy(data, &lightUboData, sizeof(LightsUBO));
+//    vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
+//}
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code) {
     VkShaderModuleCreateInfo createInfo{};

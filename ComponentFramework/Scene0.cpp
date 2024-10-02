@@ -74,7 +74,7 @@ void Scene0::HandleEvents(const SDL_Event& sdlEvent) {
 void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
-	//mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
 	
 	lights[0].position = Vec3(sin(elapsedTime) * 5.0, 0, 0);
 	lights[1].position = Vec3(0, cos(elapsedTime) * 5.0, 0);
