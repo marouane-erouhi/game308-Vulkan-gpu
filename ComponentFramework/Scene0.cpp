@@ -26,13 +26,13 @@ bool Scene0::OnCreate() {
 	// create lights
 	LightData lightData = {};
 	lightData.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lightData.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
-	lightData.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+	lightData.diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
+	lightData.specular = Vec4(1.0, 0.0, 0.0, 0.0);
 
 	LightData lightData2 = {};
 	lightData2.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lightData2.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
-	lightData2.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+	lightData2.diffuse = Vec4(0.0, 1.0, 0.0, 0.0);
+	lightData2.specular = Vec4(0.0, 1.0, 0.0, 0.0);
 
 
 	switch (renderer->getRendererType()){
@@ -72,6 +72,9 @@ void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
 	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+	
+	lights[0].position = Vec3(sin(elapsedTime) * 5.0, 0, 0);
+	lights[1].position = Vec3(0, cos(elapsedTime) * 5.0, 0);
 }
 
 void Scene0::Render() const {

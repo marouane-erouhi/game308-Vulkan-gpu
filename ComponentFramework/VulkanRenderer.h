@@ -146,7 +146,8 @@ struct LightData {
     Vec4 specular;
 };
 struct LightsUBO {
-    LightData lightsData[2]; ///  TODO: change the number here to be more dynamic later
+    LightData lightsData1; ///  TODO: change the number here to be more dynamic later
+    LightData lightsData2; ///  TODO: change the number here to be more dynamic later
     Vec4 ambient;
 };
 

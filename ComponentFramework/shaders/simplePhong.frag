@@ -10,10 +10,22 @@ layout (location = 0) out vec4 fragColor;
 
 layout(binding = 2) uniform sampler2D texSampler;
 
+struct LightData {
+    vec4 position;
+    vec4 diffuse;
+    vec4 specular;
+};
+layout(binding = 1) uniform LightsUniformBufferObject {
+    LightData lightData1;
+    LightData lightData2;
+    vec4 ambient;
+} lightsUbo;
+
 void main() { 
-	vec4 ks = vec4(0.2, 0.2, 0.6, 0.0);
-	vec4 kd = vec4(0.2, 0.2, 0.6, 0.0); 
-	vec4 ka = 0.1 * kd; // ambient
+	vec4 ks = (lightsUbo.lightData2.specular + lightsUbo.lightData1.specular); //specular reflection constant
+	vec4 kd = (lightsUbo.lightData2.diffuse + lightsUbo.lightData1.diffuse); //diffuse reflection constant
+//	vec4 ka = 0.1 * kd; // ambient reflection constant
+	vec4 ka = 0.1 * lightsUbo.ambient;
 	vec4 kt = texture(texSampler,fragTexCoords); 
 
 	float diff = max(dot(vertNormal, lightDir), 0.0);

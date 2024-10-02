@@ -1340,8 +1340,8 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
 }
 
 void VulkanRenderer::SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient) {
-    lightUboData.lightsData[0] = lightData1;
-    lightUboData.lightsData[1] = lightData2;
+    lightUboData.lightsData1 = lightData1;
+    lightUboData.lightsData2 = lightData2;
     lightUboData.ambient = ambient;
 }
 
@@ -1367,7 +1367,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
     memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
     vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
 
-    // light1 ubo
+    // lights ubo
     vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
     memcpy(data, &lightUboData, sizeof(LightsUBO));
     vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);

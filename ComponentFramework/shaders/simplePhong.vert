@@ -15,10 +15,21 @@ layout(binding = 0) uniform CameraUniformBufferObject {
 	vec4 lightPos;
 } cameraUbo;
 
-layout(binding = 1) uniform LightsUniformBufferObject {
+//layout(binding = 1) uniform LightsUniformBufferObject {
+//    vec4 position;
+//    vec4 diffuse;
+//    vec4 specular;
+//    vec4 ambient;
+//} lightsUbo;
+
+struct LightData {
     vec4 position;
     vec4 diffuse;
     vec4 specular;
+};
+layout(binding = 1) uniform LightsUniformBufferObject {
+    LightData lightData1;
+    LightData lightData2;
     vec4 ambient;
 } lightsUbo;
 
@@ -39,7 +50,7 @@ void main() {
 	eyeDir = -vertDir;
 
 	// account for multiple lights here
-	lightDir = normalize(vec3(lightsUbo.position) - vertPos); /// Create the light direction.
+	lightDir = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
 	
 	gl_Position =  cameraUbo.projectionMatrix * cameraUbo.viewMatrix * cameraUbo.modelMatrix * vVertex; 
 }
