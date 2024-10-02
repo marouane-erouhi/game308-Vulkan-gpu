@@ -20,7 +20,7 @@ void operator delete(void* memoryLocation, std::size_t amount) {
 }
 
 using namespace MATH;
- 
+
 int main(int argc, char* args[]) {
 /***	
 #pragma warning(disable : 4996) 

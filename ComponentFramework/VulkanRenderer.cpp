@@ -1339,9 +1339,17 @@ void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view
     cameraUBOdata.projectionMatrix[5] *= -1.0f;
 }
 
-void VulkanRenderer::SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient) {
-    lightUboData.lightsData1 = lightData1;
-    lightUboData.lightsData2 = lightData2;
+//void VulkanRenderer::SetLightsUbo(const LightData* lightsData, const Vec4& ambient) {
+//    //lightUboData.lightsData = lightsData;
+//    for()
+//    lightUboData.lightsData = lightsData;
+//    lightUboData.ambient = ambient;
+//}
+void VulkanRenderer::SetLightsUbo(const LightData* lightsData, const Vec4& ambient) {
+    // Copy the light data to the UBO (ensure lightCount <= MAX_LIGHTS_COUNT)
+    for (uint32_t i = 0; i < MAX_LIGHTS_COUNT; ++i) {
+        lightUboData.lightsData[i] = lightsData[i];
+    }
     lightUboData.ambient = ambient;
 }
 

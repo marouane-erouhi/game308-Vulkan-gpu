@@ -1,8 +1,11 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+#define LIGHT_COUNT 3
+
 layout (location = 0) in vec3 vertNormal;
-layout (location = 1) in vec3 lightDir;
+//layout (location = 1) in vec3 lightDir;
+layout (location = 10) in vec3 lightDir[LIGHT_COUNT];
 layout (location = 2) in vec3 eyeDir; 
 layout (location = 3) in vec2 fragTexCoords;
 
@@ -16,28 +19,32 @@ struct LightData {
     vec4 specular;
 };
 layout(binding = 1) uniform LightsUniformBufferObject {
-    LightData lightData1;
-    LightData lightData2;
+	LightData lightData[3];
     vec4 ambient;
 } lightsUbo;
 
 void main() { 
-	vec4 ks = (lightsUbo.lightData2.specular + lightsUbo.lightData1.specular); //specular reflection constant
-	vec4 kd = (lightsUbo.lightData2.diffuse + lightsUbo.lightData1.diffuse); //diffuse reflection constant
-//	vec4 ka = 0.1 * kd; // ambient reflection constant
+	vec4 finalColor = vec4(0.0);
 	vec4 ka = 0.1 * lightsUbo.ambient;
-	vec4 kt = texture(texSampler,fragTexCoords); 
+	vec4 kt = texture(texSampler, fragTexCoords);
 
-	float diff = max(dot(vertNormal, lightDir), 0.0);
+	for(int i = 0; i < LIGHT_COUNT; i++) {
+		// Normalize the light direction for current light
+		vec3 normLightDir = normalize(lightDir[i]);
 
-	/// Reflection is based incedent beam of light which means a vector 
-	///from the light source not the direction to the light source. 
-	///Put a minus sign on light dir to turn it in the opposite direction. 
-	vec3 reflection = normalize(reflect(-lightDir, vertNormal));
+		// Diffuse calculation
+		float diff = max(dot(vertNormal, normLightDir), 0.0);
+		vec4 diffuse = diff * lightsUbo.lightData[i].diffuse;
 
-	float spec = max(dot(eyeDir, reflection), 0.0);
-	spec = pow(spec,14.0);
-	
-	fragColor =  ka + (diff * kt) + (spec * ks);	
-} 
+		// Specular calculation
+		vec3 reflection = normalize(reflect(-normLightDir, vertNormal));
+		float spec = pow(max(dot(eyeDir, reflection), 0.0), 14.0);
+		vec4 specular = spec * lightsUbo.lightData[i].specular;
 
+		// Accumulate lighting for this light
+		finalColor += diffuse + specular;
+	}
+
+	// Combine ambient, texture, and accumulated lighting
+	fragColor = ka + (kt * finalColor);	
+}

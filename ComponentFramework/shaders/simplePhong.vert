@@ -1,5 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#define LIGHT_COUNT 3
 
 layout (location = 0) in  vec4 vVertex;
 layout (location = 1) in  vec4 vNormal;
@@ -15,13 +16,6 @@ layout(binding = 0) uniform CameraUniformBufferObject {
 	vec4 lightPos;
 } cameraUbo;
 
-//layout(binding = 1) uniform LightsUniformBufferObject {
-//    vec4 position;
-//    vec4 diffuse;
-//    vec4 specular;
-//    vec4 ambient;
-//} lightsUbo;
-
 struct LightData {
     vec4 position;
     vec4 diffuse;
@@ -34,7 +28,7 @@ layout(binding = 1) uniform LightsUniformBufferObject {
 } lightsUbo;
 
 layout (location = 0) out vec3 vertNormal;
-layout (location = 1) out vec3 lightDir;
+layout (location = 10) out vec3 lightDir[LIGHT_COUNT];
 layout (location = 2) out vec3 eyeDir;
 layout (location = 3) out vec2 fragTexCoords;
 
@@ -50,7 +44,10 @@ void main() {
 	eyeDir = -vertDir;
 
 	// account for multiple lights here
-	lightDir = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
+	for(int i=0;i<LIGHT_COUNT;i++){
+		lightDir[i] = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
+	}
+//		lightDir = normalize(vec3(lightsUbo.lightData1.position) - vertPos); /// Create the light direction.
 	
 	gl_Position =  cameraUbo.projectionMatrix * cameraUbo.viewMatrix * cameraUbo.modelMatrix * vVertex; 
 }

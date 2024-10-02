@@ -1,6 +1,8 @@
 #ifndef VULKANRENDERER_H 
 #define VULKANRENDERER_H
 
+# define MAX_LIGHTS_COUNT 3
+
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <SDL_image.h>
@@ -146,8 +148,7 @@ struct LightData {
     Vec4 specular;
 };
 struct LightsUBO {
-    LightData lightsData1; ///  TODO: change the number here to be more dynamic later
-    LightData lightsData2; ///  TODO: change the number here to be more dynamic later
+    LightData lightsData[MAX_LIGHTS_COUNT];
     Vec4 ambient;
 };
 
@@ -177,7 +178,7 @@ public: /// Member functions
     
 
     void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
-    void SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient);
+    void SetLightsUbo(const LightData* lightsData, const Vec4& ambient);
 
     // AddLight
     // set lights 
