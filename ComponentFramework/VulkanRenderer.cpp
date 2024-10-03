@@ -1030,7 +1030,7 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
 
 #define TOTAL_NUMBER_OF_DESCRIPTORS 3
 void VulkanRenderer::createDescriptorSetLayout() {
-    // CameraUBO descriptor
+    // CameraUBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     // this is the binding point on the shader eg: `layout(binding = 0)`
     // make sure tht this is unique value "within a pool" <- ask about this
@@ -1041,15 +1041,15 @@ void VulkanRenderer::createDescriptorSetLayout() {
     // this is where u want this to be present, vertex or fragment
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    // light UBO
-    VkDescriptorSetLayoutBinding lightUboLayoutBinding{};
-    lightUboLayoutBinding.binding = 1;
-    lightUboLayoutBinding.descriptorCount = 1;
-    lightUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    lightUboLayoutBinding.pImmutableSamplers = nullptr;
-    lightUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    // light UBO ---------------------------
+    VkDescriptorSetLayoutBinding lightsUboLayoutBinding{};
+    lightsUboLayoutBinding.binding = 1;
+    lightsUboLayoutBinding.descriptorCount = 1;
+    lightsUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    lightsUboLayoutBinding.pImmutableSamplers = nullptr;
+    lightsUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    // imgage UBO descriptor
+    // imgage UBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 2;
     samplerLayoutBinding.descriptorCount = 1;
@@ -1057,7 +1057,9 @@ void VulkanRenderer::createDescriptorSetLayout() {
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, TOTAL_NUMBER_OF_DESCRIPTORS> bindings = { uboLayoutBinding, samplerLayoutBinding, lightUboLayoutBinding };
+    // pack them into an array
+    std::array<VkDescriptorSetLayoutBinding, TOTAL_NUMBER_OF_DESCRIPTORS> bindings = { uboLayoutBinding, samplerLayoutBinding, lightsUboLayoutBinding };
+
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size()); // the number of elments
@@ -1073,7 +1075,7 @@ void VulkanRenderer::createDescriptorPool() {
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
-    // light
+    // lights
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
@@ -1107,7 +1109,6 @@ void VulkanRenderer::createDescriptorSets() {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    // this is for only the cameraUBO // for testing purposes
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         std::array<VkWriteDescriptorSet, TOTAL_NUMBER_OF_DESCRIPTORS> descriptorWrites{};
 
