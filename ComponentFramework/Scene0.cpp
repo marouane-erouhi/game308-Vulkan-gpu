@@ -23,17 +23,29 @@ bool Scene0::OnCreate() {
 	int width = 0, height = 0;
 	float aspectRatio;
 
-	// create lights
-	LightData lightData = {};
-	lightData.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lightData.diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
-	lightData.specular = Vec4(1.0, 0.0, 0.0, 0.0);
+	// create lights ---------------
+	lights[0] = {};
+	//lights[0].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+	lights[0].diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
+	lights[0].specular = Vec4(1.0, 0.0, 0.0, 0.0);
 
-	LightData lightData2 = {};
-	lightData2.position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lightData2.diffuse = Vec4(1.0, 1.0, 1.0, 0.0);
-	lightData2.specular = Vec4(1.0, 1.0, 1.0, 0.0);
+	lights[1] = {};
+	//lights[1].position = Vec4(-5.0f, 5.0f, 5.0f, 0.0f);
+	lights[1].diffuse = Vec4(0.0, 1.0, 0.0, 0.0);
+	lights[1].specular = Vec4(0.0, 1.0, 0.0, 0.0);
 
+	lights[2] = {};
+	//lights[2].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+	lights[2].diffuse = Vec4(0.0, 0.0,1.0,0.0);
+	lights[2].specular = Vec4(0.0, 0.0, 1.0, 0.0);
+
+	float angleStep = 2.0f * M_PI / 3.0f;  // 120 degrees apart
+	float radius = 5.0f;
+
+	lights[0].position = Vec4(cos(0) * radius, sin(0) * radius, 0.0f, 0.0f);
+	lights[1].position = Vec4(cos(angleStep) * radius, sin(angleStep) * radius, 0.0f, 0.0f);
+	lights[2].position = Vec4(cos(2 * angleStep) * radius, sin(2 * angleStep) * radius, 0.0f, 0.0f);
+	// create lights end -------------
 
 	switch (renderer->getRendererType()){
 	case RendererType::VULKAN:
@@ -43,8 +55,6 @@ bool Scene0::OnCreate() {
 		camera->Perspective(45.0f, aspectRatio, 0.5f, 20.0f);
 		camera->LookAt(Vec3(0.0f, 0.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		
-		lights = { lightData, lightData2 };
-
 		break;
 
 	case RendererType::OPENGL:
@@ -72,6 +82,12 @@ void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
 	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+
+	lights[0].position = Vec3(sin(elapsedTime) * 5.0, cos(elapsedTime) * 5.0, 0);
+	lights[1].position = Vec3(sin(elapsedTime + 2.0) * 5.0, cos(elapsedTime + 2.0) * 5.0, 0);
+	lights[2].position = Vec3(sin(elapsedTime + 4.0) * 5.0, cos(elapsedTime + 4.0) * 5.0, 0);
+
+
 }
 
 void Scene0::Render() const {
@@ -91,7 +107,7 @@ void Scene0::Render() const {
 
 		// push contant end --------------
 
-		vRenderer->SetLightsUbo(lights[0], lights[1], Vec4(1.0, 1.0, 1.0, 0.0));
+		vRenderer->SetLightsUbo(lights.data(), Vec4(0.0, 0.0, 0.0, 0.0));
 		vRenderer->Render();
 		break;
 

@@ -18,7 +18,7 @@ private:
 	Matrix4 mariosModelMatrix;
 	PushConstant pushConstant{};
 
-	std::array<LightData, 2> lights;
+	std::array<LightData, MAX_LIGHTS_COUNT> lights;
 public:
 	explicit Scene0(Renderer* renderer_);
 	virtual ~Scene0();

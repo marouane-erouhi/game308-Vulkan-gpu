@@ -90,22 +90,6 @@ void VulkanRenderer::RecreateSwapChain() {
     // Uniforms --------//end
 }
 
-void VulkanRenderer::setupPushConstant(VkPipelineLayoutCreateInfo& pipelineLayoutInfo) {
-    VkPushConstantRange push_constant_range{};
-    push_constant_range.offset = 0;
-    push_constant_range.size = sizeof(PushConstant);
-    push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // send to vertex shader
-
-    pipelineLayoutInfo.pPushConstantRanges = &push_constant_range;
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
-}
-
-void VulkanRenderer::sendPushConstant(int i) {
-    vkCmdPushConstants(commandBuffers[i], pipelineLayout,
-        VK_SHADER_STAGE_VERTEX_BIT /*| VK_SHADER_STAGE_FRAGMENT_BIT*/, 0,
-        sizeof(PushConstant), &modelMatrixPushConstant);
-}
-
 void VulkanRenderer::OnDestroy() {
     vkDeviceWaitIdle(device); /// Wait for all commands to clear
     cleanupSwapChain();
@@ -642,8 +626,6 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
-    setupPushConstant(pipelineLayoutInfo);
-
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
@@ -1048,7 +1030,7 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
 
 #define TOTAL_NUMBER_OF_DESCRIPTORS 3
 void VulkanRenderer::createDescriptorSetLayout() {
-    // CameraUBO descriptor
+    // CameraUBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     // this is the binding point on the shader eg: `layout(binding = 0)`
     // make sure tht this is unique value "within a pool" <- ask about this
@@ -1059,15 +1041,15 @@ void VulkanRenderer::createDescriptorSetLayout() {
     // this is where u want this to be present, vertex or fragment
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    // light UBO
-    VkDescriptorSetLayoutBinding lightUboLayoutBinding{};
-    lightUboLayoutBinding.binding = 1;
-    lightUboLayoutBinding.descriptorCount = 1;
-    lightUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    lightUboLayoutBinding.pImmutableSamplers = nullptr;
-    lightUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    // light UBO ---------------------------
+    VkDescriptorSetLayoutBinding lightsUboLayoutBinding{};
+    lightsUboLayoutBinding.binding = 1;
+    lightsUboLayoutBinding.descriptorCount = 1;
+    lightsUboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    lightsUboLayoutBinding.pImmutableSamplers = nullptr;
+    lightsUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    // imgage UBO descriptor
+    // imgage UBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 2;
     samplerLayoutBinding.descriptorCount = 1;
@@ -1075,7 +1057,9 @@ void VulkanRenderer::createDescriptorSetLayout() {
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, TOTAL_NUMBER_OF_DESCRIPTORS> bindings = { uboLayoutBinding, samplerLayoutBinding, lightUboLayoutBinding };
+    // pack them into an array
+    std::array<VkDescriptorSetLayoutBinding, TOTAL_NUMBER_OF_DESCRIPTORS> bindings = { uboLayoutBinding, samplerLayoutBinding, lightsUboLayoutBinding };
+
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size()); // the number of elments
@@ -1091,7 +1075,7 @@ void VulkanRenderer::createDescriptorPool() {
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
-    // light
+    // lights
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
@@ -1125,7 +1109,6 @@ void VulkanRenderer::createDescriptorSets() {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    // this is for only the cameraUBO // for testing purposes
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         std::array<VkWriteDescriptorSet, TOTAL_NUMBER_OF_DESCRIPTORS> descriptorWrites{};
 
@@ -1272,7 +1255,6 @@ uint32_t VulkanRenderer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
 }
 
 void VulkanRenderer::createCommandBuffers() {
-    // a command buffer for each swapchain
     commandBuffers.resize(swapChainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -1285,7 +1267,6 @@ void VulkanRenderer::createCommandBuffers() {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 
-    // start writing commands
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1315,16 +1296,11 @@ void VulkanRenderer::createCommandBuffers() {
         // bind to the existing pipline
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-
-
         VkBuffer vertexBuffers[] = { indexedVertexBuffer.vertBufferID };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-
-        sendPushConstant(i);
-
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
         // END RENDER
@@ -1357,23 +1333,25 @@ void VulkanRenderer::createSyncObjects() {
     }
 }
 
-void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view) {
-    //void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model) {
+void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model) {
     cameraUBOdata.projectionMatrix = projection;
     cameraUBOdata.viewMatrix = view;
-    //cameraUBOdata.modelMatrix = model;
+    cameraUBOdata.modelMatrix = model;
     cameraUBOdata.projectionMatrix[5] *= -1.0f;
 }
 
-void VulkanRenderer::SetLightsUbo(const LightData& lightData1, const LightData& lightData2, const Vec4& ambient) {
-    lightUboData.lightsData[0] = lightData1;
-    lightUboData.lightsData[1] = lightData2;
+//void VulkanRenderer::SetLightsUbo(const LightData* lightsData, const Vec4& ambient) {
+//    //lightUboData.lightsData = lightsData;
+//    for()
+//    lightUboData.lightsData = lightsData;
+//    lightUboData.ambient = ambient;
+//}
+void VulkanRenderer::SetLightsUbo(const LightData* lightsData, const Vec4& ambient) {
+    // Copy the light data to the UBO (ensure lightCount <= MAX_LIGHTS_COUNT)
+    for (uint32_t i = 0; i < MAX_LIGHTS_COUNT; ++i) {
+        lightUboData.lightsData[i] = lightsData[i];
+    }
     lightUboData.ambient = ambient;
-}
-
-void VulkanRenderer::SetPushConstantModelMatrix(const Matrix4& modelMatrix_) {
-    modelMatrixPushConstant.modelMatrix = modelMatrix_;
-    modelMatrixPushConstant.normalMatrix = Matrix4();
 }
 
 //void VulkanRenderer::SetLightsUbo(const LightData& lightData, const Vec4& ambient) {
@@ -1386,23 +1364,23 @@ void VulkanRenderer::SetPushConstantModelMatrix(const Matrix4& modelMatrix_) {
 template <class T>
 void VulkanRenderer::updateUniformBuffer(const T srcData, const BufferMemory& bufferMemory) {
     void* data;
-    vkMapMemory(device, bufferMemory.bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-    memcpy(data, &srcData, sizeof(CameraUBO));
+    vkMapMemory(device, bufferMemory.bufferMemoryID, 0, sizeof(T), 0, &data);
+    memcpy(data, &srcData, sizeof(T));
     vkUnmapMemory(device, bufferMemory.bufferMemoryID);
 }
 ///OLD ^^^^
-void VulkanRenderer::updateUniformBuffer1(uint32_t currentImage) {
-    // camera ubo
-    void* data;
-    vkMapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
-    memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
-    vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
-
-    // light1 ubo
-    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
-    memcpy(data, &lightUboData, sizeof(LightsUBO));
-    vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
-}
+//void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
+//    // camera ubo
+//    void* data;
+//    vkMapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID, 0, sizeof(CameraUBO), 0, &data);
+//    memcpy(data, &cameraUBOdata, sizeof(CameraUBO));
+//    vkUnmapMemory(device, cameraUboBuffers[currentImage].bufferMemoryID);
+//
+//    // lights ubo
+//    vkMapMemory(device, lightUboBuffers[currentImage].bufferMemoryID, 0, sizeof(LightsUBO), 0, &data);
+//    memcpy(data, &lightUboData, sizeof(LightsUBO));
+//    vkUnmapMemory(device, lightUboBuffers[currentImage].bufferMemoryID);
+//}
 
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code) {
     VkShaderModuleCreateInfo createInfo{};
