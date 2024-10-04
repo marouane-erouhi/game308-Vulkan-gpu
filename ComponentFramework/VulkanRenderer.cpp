@@ -1390,10 +1390,9 @@ void VulkanRenderer::createSyncObjects() {
     }
 }
 
-void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model) {
+void VulkanRenderer::SetCameraUBO(const Matrix4& projection, const Matrix4& view) {
     cameraUBOdata.projectionMatrix = projection;
     cameraUBOdata.viewMatrix = view;
-    cameraUBOdata.modelMatrix = model;
     cameraUBOdata.projectionMatrix[5] *= -1.0f;
 }
 

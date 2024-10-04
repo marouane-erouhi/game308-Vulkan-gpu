@@ -139,8 +139,6 @@ struct IndexedVertexBuffer {
 struct CameraUBO { /// A UniformBufferObject
     Matrix4 projectionMatrix;
     Matrix4 viewMatrix;
-    Matrix4 modelMatrix; /// This doesn't belong here. We'll fix it.
-    Vec4 lightPos;
 };
 struct LightData {
     Vec4 position;
@@ -180,7 +178,7 @@ public: /// Member functions
     void Render();
     
 
-    void SetCameraUBO(const Matrix4& projection, const Matrix4& view, const Matrix4& model);
+    void SetCameraUBO(const Matrix4& projection, const Matrix4& view);
     void SetLightsUbo(const LightData* lightsData, const Vec4& ambient);
 
     // AddLight

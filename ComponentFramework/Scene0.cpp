@@ -97,7 +97,7 @@ void Scene0::Render() const {
 	case RendererType::VULKAN:
 		VulkanRenderer* vRenderer;
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
-		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix(), mariosModelMatrix);
+		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
 		vRenderer->setPushContant(mariosModelMatrix);
 

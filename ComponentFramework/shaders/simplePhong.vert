@@ -12,8 +12,6 @@ layout (location = 2) in  vec2 texCoords;
 layout(binding = 0) uniform CameraUniformBufferObject {
     mat4 projectionMatrix;
     mat4 viewMatrix;
-    mat4 modelMatrix; // need to remove this, since it's beying passed in the push constant
-	vec4 lightPos;
 } cameraUbo;
 
 struct LightData {
