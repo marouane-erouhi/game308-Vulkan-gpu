@@ -56,6 +56,7 @@ bool VulkanRenderer::OnCreate(){
     createDescriptorSets();
     // command buffers hold all the draw calls u need to do for that frame
     createCommandBuffers();
+    RecordCommandBuffer();
     createSyncObjects();
     return true;
 }
@@ -86,6 +87,8 @@ void VulkanRenderer::RecreateSwapChain() {
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
+    RecordCommandBuffer();
+
 
     // Uniforms --------//end
 }
@@ -140,6 +143,25 @@ void VulkanRenderer::Render() {
     //updateUniformBuffer(imageIndex);
     updateUniformBuffer<CameraUBO>(cameraUBOdata, cameraUboBuffers[imageIndex]);
     updateUniformBuffer<LightsUBO>(lightUboData, lightUboBuffers[imageIndex]);
+
+    //// Push constant attempt -------------
+    //VkCommandBufferBeginInfo beginInfo = {};
+    //beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    //beginInfo.flags = 0;  // Optional
+    //beginInfo.pInheritanceInfo = nullptr;  // Optional
+
+    //vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo);
+    RecordCommandBuffer();
+
+    //// we will need to break the command buffer up, to seperate the commands from 
+    //    // the command that only need to be set once in a while and commands that need 
+    //    // to be updated consistently
+    //vkCmdPushConstants(
+    //    commandBuffers[imageIndex], 
+    //    pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 
+    //    sizeof(ModelPushConstant), &modelPushConstant);
+    //vkEndCommandBuffer(commandBuffers[imageIndex]);
+
 
     if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -621,10 +643,23 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     colorBlending.blendConstants[2] = 0.0f;
     colorBlending.blendConstants[3] = 0.0f;
 
+    // push constant here ------------
+    VkPushConstantRange push_constant;
+    push_constant.offset = 0;//this push constant range starts at the beginning
+    //this push constant range takes up the size of a MeshPushConstants struct
+    push_constant.size = sizeof(ModelPushConstant);
+    //this push constant range is accessible only in the vertex shader
+    push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+
+    // add the push constant to the layout info
+    pipelineLayoutInfo.pPushConstantRanges = &push_constant;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
@@ -687,6 +722,7 @@ void VulkanRenderer::createCommandPool() {
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics command pool!");
@@ -720,6 +756,11 @@ VkFormat VulkanRenderer::findDepthFormat() {
         VK_IMAGE_TILING_OPTIMAL,
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
     );
+}
+
+void VulkanRenderer::setPushContant(const Matrix4& model) {
+    modelPushConstant.model = model;
+    modelPushConstant.normal = Matrix4();
 }
 
 bool VulkanRenderer::hasStencilComponent(VkFormat format) {
@@ -1254,6 +1295,9 @@ uint32_t VulkanRenderer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
+/// <summary>
+/// crete the command buffer, this prepares it to be writen on `RecordCommandBuffer`
+/// </summary>
 void VulkanRenderer::createCommandBuffers() {
     commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -1266,7 +1310,12 @@ void VulkanRenderer::createCommandBuffers() {
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
-
+}
+/// <summary>
+/// this is where u write commands to the GPU
+/// </summary>
+void VulkanRenderer::RecordCommandBuffer(){
+    vkDeviceWaitIdle(device);
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1301,6 +1350,14 @@ void VulkanRenderer::createCommandBuffers() {
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+
+        // we will need to break the command buffer up, to seperate the commands from 
+        // the command that only need to be set once in a while and commands that need 
+        // to be updated consistently
+        vkCmdPushConstants(commandBuffers[i], pipelineLayout, 
+            VK_SHADER_STAGE_VERTEX_BIT, 0, 
+            sizeof(ModelPushConstant), &modelPushConstant);
+
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
         // END RENDER

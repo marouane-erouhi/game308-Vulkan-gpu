@@ -33,7 +33,6 @@ layout (location = 10) out vec3 lightDir[LIGHT_COUNT];
 layout (location = 2) out vec3 eyeDir;
 layout (location = 3) out vec2 fragTexCoords;
 
-
 //push constants block
 layout(push_constant) uniform Push {
 	mat4 modelMatrix;

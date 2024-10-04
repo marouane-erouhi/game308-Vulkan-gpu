@@ -151,12 +151,15 @@ struct LightsUBO {
     LightData lightsData[MAX_LIGHTS_COUNT];
     Vec4 ambient;
 };
-
 struct Sampler2D {
     VkImage image;
     VkDeviceMemory imageDeviceMemory;
     VkImageView imageView;
     VkSampler sampler;
+};
+struct ModelPushConstant {
+    Matrix4 model;
+    Matrix4 normal;
 };
 
 class VulkanRenderer : public Renderer {
@@ -238,6 +241,10 @@ private: /// Private member variables
     std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
     std::vector<BufferMemory> lightUboBuffers; // for testing purposes
 
+    ModelPushConstant modelPushConstant;
+public:
+    void setPushContant(const Matrix4& model);
+
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);
     void createInstance();
@@ -275,6 +282,7 @@ private: /// Member functions
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     void createCommandBuffers();
+    void RecordCommandBuffer();
     void createSyncObjects();
     void cleanupSwapChain();
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);

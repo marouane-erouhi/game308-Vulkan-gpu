@@ -99,13 +99,7 @@ void Scene0::Render() const {
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix(), mariosModelMatrix);
 
-		// push constant---------------
-		//pushConstant.modelMatrix = mariosModelMatrix;
-		//// mat3 normalMatrix = mat3(transpose(inverse(push.modelMatrix)));
-		//pushConstant.normalMatrix = MMath::transpose(MMath::inverse(mariosModelMatrix));
-		//vRenderer->SetPushConstantModelMatrix(mariosModelMatrix);
-
-		// push contant end --------------
+		vRenderer->setPushContant(mariosModelMatrix);
 
 		vRenderer->SetLightsUbo(lights.data(), Vec4(0.0, 0.0, 0.0, 0.0));
 		vRenderer->Render();
