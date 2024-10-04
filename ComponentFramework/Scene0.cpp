@@ -47,6 +47,9 @@ bool Scene0::OnCreate() {
 	lights[2].position = Vec4(cos(2 * angleStep) * radius, sin(2 * angleStep) * radius, 0.0f, 0.0f);
 	// create lights end -------------
 
+	// marionormal matrix
+	//mat3 normalMatrix = mat3(transpose(inverse(push.modelMatrix))); // scott sais this is bs and should be moved to the cpu through the push constant
+
 	switch (renderer->getRendererType()){
 	case RendererType::VULKAN:
 		
@@ -82,6 +85,7 @@ void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
 	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+	marioNormalMatrix = MMath::transpose(MMath::inverse(mariosModelMatrix));
 
 	lights[0].position = Vec3(sin(elapsedTime) * 5.0, cos(elapsedTime) * 5.0, 0);
 	lights[1].position = Vec3(sin(elapsedTime + 2.0) * 5.0, cos(elapsedTime + 2.0) * 5.0, 0);
@@ -99,7 +103,7 @@ void Scene0::Render() const {
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
-		vRenderer->setPushContant(mariosModelMatrix);
+		vRenderer->setPushContant(mariosModelMatrix, marioNormalMatrix);
 
 		vRenderer->SetLightsUbo(lights.data(), Vec4(0.0, 0.0, 0.0, 0.0));
 		vRenderer->Render();

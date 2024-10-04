@@ -16,6 +16,7 @@ private:
 	Renderer *renderer;
 	Camera *camera;
 	Matrix4 mariosModelMatrix;
+	Matrix4 marioNormalMatrix;
 	//PushConstant pushConstant{};
 
 	std::array<LightData, MAX_LIGHTS_COUNT> lights;

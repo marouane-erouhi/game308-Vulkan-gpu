@@ -40,7 +40,7 @@ layout(push_constant) uniform Push {
 void main() {
 	fragTexCoords = texCoords;
 	/// We must fix this, just load the normalMatrix in to the cameraUbo
-	mat3 normalMatrix = mat3(transpose(inverse(push.modelMatrix))); // scott sais this is bs and should be moved to the cpu through the push constant
+	mat3 normalMatrix = mat3(push.normalMatrix); // scott sais this is bs and should be moved to the cpu through the push constant
 
 	vertNormal = normalize(normalMatrix * vNormal.xyz); /// Rotate the normal to the correct orientation 
 	vec3 vertPos = vec3(cameraUbo.viewMatrix * push.modelMatrix * vVertex); /// This is the position of the vertex from the origin

@@ -241,7 +241,7 @@ private: /// Private member variables
 
     ModelPushConstant modelPushConstant;
 public:
-    void setPushContant(const Matrix4& model);
+    void setPushContant(const Matrix4& model, const Matrix4& normal);
 
 private: /// Member functions
     bool hasStencilComponent(VkFormat format);

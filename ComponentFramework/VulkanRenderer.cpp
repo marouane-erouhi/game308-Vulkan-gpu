@@ -758,9 +758,9 @@ VkFormat VulkanRenderer::findDepthFormat() {
     );
 }
 
-void VulkanRenderer::setPushContant(const Matrix4& model) {
+void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal) {
     modelPushConstant.model = model;
-    modelPushConstant.normal = Matrix4();
+    modelPushConstant.normal = normal;
 }
 
 bool VulkanRenderer::hasStencilComponent(VkFormat format) {
