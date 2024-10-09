@@ -10,14 +10,12 @@ using namespace MATH;
 /// Forward declarations 
 union SDL_Event;
 
-
 class Scene0 : public Scene {
 private:
 	Renderer *renderer;
 	Camera *camera;
 	Matrix4 mariosModelMatrix;
 	Matrix4 marioNormalMatrix;
-	//PushConstant pushConstant{};
 
 	std::array<LightData, MAX_LIGHTS_COUNT> lights;
 public:
@@ -29,7 +27,6 @@ public:
 	virtual void Update(const float deltaTime) override;
 	virtual void Render() const override;
 	virtual void HandleEvents(const SDL_Event &sdlEvent) override;
-	void SetPushConstantModelMatrix(const Matrix4& modelMatrix);
 };
 
 
