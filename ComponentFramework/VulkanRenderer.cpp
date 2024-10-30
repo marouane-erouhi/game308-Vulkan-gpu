@@ -2,7 +2,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
-
+#include "Debug.h"
 
 VulkanRenderer::VulkanRenderer(): /// Initialize all the variables
     window(nullptr), instance(nullptr), debugMessenger(0), surface(0),commandPool(0),device(nullptr),graphicsPipeline(0),
@@ -24,7 +24,23 @@ SDL_Window* VulkanRenderer::CreateWindow(std::string name_, int width_, int heig
         windowWidth, windowHeight, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     return window;
 }
+void ListDeviceExtensions(VkPhysicalDevice device) {
+    uint32_t extensionCount = 0;
 
+    // First call to get the number of extensions
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    // Allocate space for extension properties
+    std::vector<VkExtensionProperties> extensions(extensionCount);
+
+    // Second call to retrieve extension properties
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
+
+    // Print the supported extensions
+    for (const auto& extension : extensions) {
+        std::cout << extension.extensionName << std::endl;
+    }
+}
 bool VulkanRenderer::OnCreate(){
     createInstance();
     setupDebugMessenger(); // messaging system for validation layers to comunicate to u
@@ -33,6 +49,13 @@ bool VulkanRenderer::OnCreate(){
     }
     
     pickPhysicalDevice();
+
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    printf("Physicsal device used: %s\n", properties.deviceName);
+    
+    // ListDeviceExtensions(physicalDevice);
+
     createLogicalDevice();
     createSwapChain(); // create vulkan's version of frame buffers - used for things like bouble buffering
     createImageViews();
@@ -350,20 +373,30 @@ void VulkanRenderer::pickPhysicalDevice() {
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
     // print out device names
+    Debug::Info("GPU: Available physics devices:", __FILE__, __LINE__);
     //for (const auto& device : devices) {
-    //    VkPhysicalDeviceProperties properties;
-    //    vkGetPhysicalDeviceProperties(device, &properties);
-    //    std::cout << "Device name: " << properties.deviceName << std::endl;
-    //}
+    for(int i = 0; i< devices.size(); i++){
+        VkPhysicalDeviceProperties properties;
+        vkGetPhysicalDeviceProperties(devices[i], &properties);
+        //std::cout << "Device name: " << properties.deviceName << std::endl;
+        std::string deviceInfo = std::string("Device #") + std::to_string(i) + 
+            std::string(": ") + std::string(properties.deviceName) + ((i == devices.size() - 1) ? "\n" : "");
+        Debug::Info(deviceInfo.c_str(), __FILE__, __LINE__);
+
+        std::string deviceName(properties.deviceName);
+        if (deviceName.find("NVIDIA") != std::string::npos && isDeviceSuitable(devices[i])) {
+            physicalDevice = devices[i];
+        }
+    }
 
     // This loop is just the reverse of the one under it, this is so that 
     // it would probably choose the dedicated GPU rather then internal
-    for (auto it = devices.rbegin(); it != devices.rend(); ++it) {
+   /* for (auto it = devices.rbegin(); it != devices.rend(); ++it) {
         if (isDeviceSuitable(*it)) {
             physicalDevice = *it;
             break;
         }
-    }
+    }*/
     //for (const auto& device : devices) {
     //    // since it's picking the first valid device,
     //    // it looks like it's using my intergrated graphics
@@ -1129,7 +1162,7 @@ void VulkanRenderer::createDescriptorPool() {
     poolInfo.poolSizeCount = TOTAL_NUMBER_OF_DESCRIPTORS;
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
-    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+    poolInfo.flags = 0; // VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
 
     if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor pool!");

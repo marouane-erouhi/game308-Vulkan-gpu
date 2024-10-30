@@ -39,7 +39,10 @@ const std::vector<const char*> validationLayers = {
 };
 
 const std::vector<const char*> deviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    //"VK_EXT_descriptor_indexing",
+    //VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+    //VK_KHR_MAINTENANCE3_EXTENSION_NAME,
 };
 
 struct QueueFamilyIndices {
