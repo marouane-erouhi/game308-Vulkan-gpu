@@ -71,8 +71,8 @@ bool VulkanRenderer::OnCreate(){
     texture2D = Create2DTextureImage("./textures/mario_fire.png");
     texture2D2 = Create2DTextureImage("./textures/skull_texture.png");
 
-    indexedVertexBuffer = LoadModelIndexed("./meshes/Mario.obj"); // load obj model
-    indexedVertexBuffer2 = LoadModelIndexed("./meshes/Skull.obj");
+    indexedVertexBufferCollection.insert({ std::string("Mario"), LoadModelIndexed("./meshes/Mario.obj") });
+    indexedVertexBufferCollection.insert({ std::string("Skull"), LoadModelIndexed("./meshes/Skull.obj") });
 
     CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
     // create the CameraUBO buffer in GPU
@@ -139,15 +139,13 @@ void VulkanRenderer::OnDestroy() {
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
     {
-        vkDestroyBuffer(device, indexedVertexBuffer.vertBufferID, nullptr);
-        vkFreeMemory(device, indexedVertexBuffer.vertBufferMemoryID, nullptr);
-        vkDestroyBuffer(device, indexedVertexBuffer.indexBufferID, nullptr);
-        vkFreeMemory(device, indexedVertexBuffer.indexBufferMemoryID, nullptr);
-
-        vkDestroyBuffer(device, indexedVertexBuffer2.vertBufferID, nullptr);
-        vkFreeMemory(device, indexedVertexBuffer2.vertBufferMemoryID, nullptr);
-        vkDestroyBuffer(device, indexedVertexBuffer2.indexBufferID, nullptr);
-        vkFreeMemory(device, indexedVertexBuffer2.indexBufferMemoryID, nullptr);
+        for (auto item : indexedVertexBufferCollection) {
+            auto indexedVertexBuffer = item.second;
+            vkDestroyBuffer(device, indexedVertexBuffer.vertBufferID, nullptr);
+            vkFreeMemory(device, indexedVertexBuffer.vertBufferMemoryID, nullptr);
+            vkDestroyBuffer(device, indexedVertexBuffer.indexBufferID, nullptr);
+            vkFreeMemory(device, indexedVertexBuffer.indexBufferMemoryID, nullptr);
+        }
     }
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1446,10 +1444,10 @@ void VulkanRenderer::RecordCommandBuffer(){
 
 /// ******** Draw object one
         // this is where u bind the vertex buffer into the shader
-        VkBuffer vertexBuffers[] = { indexedVertexBuffer.vertBufferID };
+        VkBuffer vertexBuffers[] = { indexedVertexBufferCollection.at("Mario").vertBufferID};
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Mario").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
         // we will need to break the command buffer up, to seperate the commands from 
         // the command that only need to be set once in a while and commands that need 
         // to be updated consistently
@@ -1457,17 +1455,17 @@ void VulkanRenderer::RecordCommandBuffer(){
         vkCmdPushConstants(commandBuffers[i], pipelineLayout, 
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
             sizeof(ModelPushConstant), &modelPushConstant);
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Mario").indexBufferLength), 1, 0, 0, 0);
 /// ****** Draw object 2
-        VkBuffer vertexBuffers2[] = { indexedVertexBuffer2.vertBufferID };
+        VkBuffer vertexBuffers2[] = { indexedVertexBufferCollection.at("Skull").vertBufferID};
         VkDeviceSize offsets2[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
-        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer2.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Skull").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
         modelPushConstant2.textureIndex = 1;
         vkCmdPushConstants(commandBuffers[i], pipelineLayout,
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
             sizeof(ModelPushConstant), &modelPushConstant2);
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer2.indexBufferLength), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Skull").indexBufferLength), 1, 0, 0, 0);
 
 
         vkCmdEndRenderPass(commandBuffers[i]);

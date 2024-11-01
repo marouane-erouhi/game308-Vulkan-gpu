@@ -244,8 +244,7 @@ private: /// Private member variables
     CameraUBO cameraUBOdata;
     LightsUBO lightUboData;
 
-    IndexedVertexBuffer indexedVertexBuffer;
-    IndexedVertexBuffer indexedVertexBuffer2;
+    std::unordered_map<std::string,IndexedVertexBuffer> indexedVertexBufferCollection;
     //std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
     std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
     std::vector<BufferMemory> lightUboBuffers; // for testing purposes
