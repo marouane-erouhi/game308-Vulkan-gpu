@@ -794,6 +794,22 @@ VkFormat VulkanRenderer::findDepthFormat() {
 void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal) {
     modelPushConstant.model = model;
     modelPushConstant.normal = normal;
+
+    Matrix3 modelMatrixPushConst;
+    //TODO: use the infor from the website to push some extra data
+    /*/// See the header file for an explination of how I layed this out in memory
+    modelMatrixPushConst.normalMatrix[0].x = normalMatrix[0];
+    modelMatrixPushConst.normalMatrix[1].x = normalMatrix[1];
+    modelMatrixPushConst.normalMatrix[2].x = normalMatrix[2];
+
+    modelMatrixPushConst.normalMatrix[0].y = normalMatrix[3];
+    modelMatrixPushConst.normalMatrix[1].y = normalMatrix[4];
+    modelMatrixPushConst.normalMatrix[2].y = normalMatrix[5];
+
+    modelMatrixPushConst.normalMatrix[0].z = normalMatrix[6];
+    modelMatrixPushConst.normalMatrix[1].z = normalMatrix[7];
+    modelMatrixPushConst.normalMatrix[2].z = normalMatrix[8];*/
+
 }
 
 bool VulkanRenderer::hasStencilComponent(VkFormat format) {
@@ -1103,6 +1119,39 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
 }
 
 #define TOTAL_NUMBER_OF_DESCRIPTORS 3
+/// <summary>
+/// Layouts here are like channels/locations where a resource is present
+/// The descriptor set describes where each resourse is located
+/// createDescriptorPool        -> Create a pool of resources
+/// createDescriptorSetLayout   -> Create the info for each descriptor set
+/// createDescriptorSets        -> Create the actual descriptor set, this is where u actually 
+///                                     have things like the size of the object it can hold
+/// </summary>
+void VulkanRenderer::createDescriptorPool() {
+    std::array<VkDescriptorPoolSize, TOTAL_NUMBER_OF_DESCRIPTORS> poolSizes{};
+    // camera ubo
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+    // lights
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+    // texture
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = TOTAL_NUMBER_OF_DESCRIPTORS;
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+    poolInfo.flags = 0; // VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+
+    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+}
 void VulkanRenderer::createDescriptorSetLayout() {
     // CameraUBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -1110,10 +1159,9 @@ void VulkanRenderer::createDescriptorSetLayout() {
     // make sure tht this is unique value "within a pool" <- ask about this
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // it's a uniform
     uboLayoutBinding.pImmutableSamplers = nullptr;
-    // this is where u want this to be present, vertex or fragment
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // should be available in the vertex shader
 
     // light UBO ---------------------------
     VkDescriptorSetLayoutBinding lightsUboLayoutBinding{};
@@ -1141,31 +1189,6 @@ void VulkanRenderer::createDescriptorSetLayout() {
 
     if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
-    }
-}
-void VulkanRenderer::createDescriptorPool() {
-    std::array<VkDescriptorPoolSize, TOTAL_NUMBER_OF_DESCRIPTORS> poolSizes{};
-    // camera ubo
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-    // lights
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-    // texture
-    poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = TOTAL_NUMBER_OF_DESCRIPTORS;
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
-    poolInfo.flags = 0; // VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-
-    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor pool!");
     }
 }
 void VulkanRenderer::createDescriptorSets() {
