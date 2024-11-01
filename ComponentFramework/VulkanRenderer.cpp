@@ -69,7 +69,7 @@ bool VulkanRenderer::OnCreate(){
     createFramebuffers();
 
     texture2D = Create2DTextureImage("./textures/mario_fire.png");
-    texture2D2 = Create2DTextureImage("./textures/mario_fire.png");
+    texture2D2 = Create2DTextureImage("./textures/skull_texture.png");
 
     indexedVertexBuffer = LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     indexedVertexBuffer2 = LoadModelIndexed("./meshes/Skull.obj");
@@ -1142,6 +1142,7 @@ std::vector<BufferMemory> VulkanRenderer::createUniformBuffers() {
 }
 
 #define TOTAL_NUMBER_OF_DESCRIPTORS 3
+#define NUMBER_OF_TEXTURES 2
 /// <summary>
 /// Layouts here are like channels/locations where a resource is present
 /// The descriptor set describes where each resourse is located
@@ -1162,7 +1163,7 @@ void VulkanRenderer::createDescriptorPool() {
 
     // texture
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size() * 2);
 
     //// texture 2 - the skull
     //poolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1201,7 +1202,7 @@ void VulkanRenderer::createDescriptorSetLayout() {
     // imgage UBO descriptor - mario and skull ---------------------------
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 2;
-    samplerLayoutBinding.descriptorCount = 1;
+    samplerLayoutBinding.descriptorCount = 2;
     samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -1265,18 +1266,22 @@ void VulkanRenderer::createDescriptorSets() {
         descriptorWrites[1].pBufferInfo = &lightUboLayoutBinding;
 
         // Image --- Set
-        VkDescriptorImageInfo imageLayoutBinding{};
-        imageLayoutBinding.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageLayoutBinding.imageView = texture2D.imageView;
-        imageLayoutBinding.sampler = texture2D.sampler;
+        std::array<VkDescriptorImageInfo, NUMBER_OF_TEXTURES> imageLayoutBindings;
+        imageLayoutBindings[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageLayoutBindings[0].imageView = texture2D.imageView;
+        imageLayoutBindings[0].sampler = texture2D.sampler;
+        // skull
+        imageLayoutBindings[1].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageLayoutBindings[1].imageView = texture2D2.imageView;
+        imageLayoutBindings[1].sampler = texture2D2.sampler;
 
         descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[2].dstSet = descriptorSets[i];
         descriptorWrites[2].dstBinding = 2;
         descriptorWrites[2].dstArrayElement = 0;
         descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &imageLayoutBinding;
+        descriptorWrites[2].descriptorCount = imageLayoutBindings.size();
+        descriptorWrites[2].pImageInfo = imageLayoutBindings.data();
 
         // register the descriptor set
         vkUpdateDescriptorSets(
@@ -1288,6 +1293,7 @@ void VulkanRenderer::createDescriptorSets() {
 }
 // it is no longer useful to have
 #undef TOTAL_NUMBER_OF_DESCRIPTORS
+#undef NUMBER_OF_TEXTURES
 /// <summary>
 /// Create the buffer in VRAM
 /// </summary>
