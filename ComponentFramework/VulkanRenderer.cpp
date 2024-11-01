@@ -67,9 +67,14 @@ bool VulkanRenderer::OnCreate(){
 
     createDepthResources();
     createFramebuffers();
+
     Create2DTextureImage("./textures/mario_fire.png");
-    LoadModelIndexed("./meshes/Mario.obj"); // load obj model
-    // 
+    //texture2D = Create2DTextureImage("./textures/mario_fire.png");
+    //texture2D2 = Create2DTextureImage("./textures/skull_texture.jpg");
+
+    indexedVertexBuffer = LoadModelIndexed("./meshes/Mario.obj"); // load obj model
+    indexedVertexBuffer2 = LoadModelIndexed("./meshes/Skull.obj");
+
     CreateGraphicsPipeline("./shaders/simplePhong.vert.spv", "./shaders/simplePhong.frag.spv");
     // create the CameraUBO buffer in GPU
     //uniformBuffers.insert({ "CameraUBO", createUniformBuffers<CameraUBO>() });
@@ -120,19 +125,31 @@ void VulkanRenderer::OnDestroy() {
     vkDeviceWaitIdle(device); /// Wait for all commands to clear
     cleanupSwapChain();
 
-    vkDestroySampler(device, texture2D.sampler, nullptr);
-    vkDestroyImageView(device, texture2D.imageView, nullptr);
+    {
+        vkDestroySampler(device, texture2D.sampler, nullptr);
+        vkDestroyImageView(device, texture2D.imageView, nullptr);
+        vkDestroyImage(device, texture2D.image, nullptr);
+        vkFreeMemory(device, texture2D.imageDeviceMemory, nullptr);
 
-    vkDestroyImage(device, texture2D.image, nullptr);
-    vkFreeMemory(device, texture2D.imageDeviceMemory, nullptr);
+        //vkDestroySampler(device, texture2D2.sampler, nullptr);
+        //vkDestroyImageView(device, texture2D2.imageView, nullptr);
+        //vkDestroyImage(device, texture2D2.image, nullptr);
+        //vkFreeMemory(device, texture2D2.imageDeviceMemory, nullptr);
+    }
 
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-    vkDestroyBuffer(device, indexedVertexBuffer.vertBufferID, nullptr);
-    vkFreeMemory(device, indexedVertexBuffer.vertBufferMemoryID, nullptr);
+    {
+        vkDestroyBuffer(device, indexedVertexBuffer.vertBufferID, nullptr);
+        vkFreeMemory(device, indexedVertexBuffer.vertBufferMemoryID, nullptr);
+        vkDestroyBuffer(device, indexedVertexBuffer.indexBufferID, nullptr);
+        vkFreeMemory(device, indexedVertexBuffer.indexBufferMemoryID, nullptr);
 
-    vkDestroyBuffer(device, indexedVertexBuffer.indexBufferID, nullptr);
-    vkFreeMemory(device, indexedVertexBuffer.indexBufferMemoryID, nullptr);
+        vkDestroyBuffer(device, indexedVertexBuffer2.vertBufferID, nullptr);
+        vkFreeMemory(device, indexedVertexBuffer2.vertBufferMemoryID, nullptr);
+        vkDestroyBuffer(device, indexedVertexBuffer2.indexBufferID, nullptr);
+        vkFreeMemory(device, indexedVertexBuffer2.indexBufferMemoryID, nullptr);
+    }
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -795,6 +812,10 @@ void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal)
     modelPushConstant.model = model;
     modelPushConstant.normal = normal;
 
+    
+    modelPushConstant2.model = model * MMath::translate(5.0f, 0.0f, 0.0f);
+    modelPushConstant2.normal = normal;
+
     Matrix3 modelMatrixPushConst;
     //TODO: use the infor from the website to push some extra data
     /*/// See the header file for an explination of how I layed this out in memory
@@ -816,9 +837,11 @@ bool VulkanRenderer::hasStencilComponent(VkFormat format) {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
+Sampler2D VulkanRenderer::Create2DTextureImage(const char* texureFile) {
     SDL_Surface* image = IMG_Load(texureFile);
     VkDeviceSize imageSize = image->w * image->h * 4; /// RGBA only please
+
+    //Sampler2D texture2D{};
 
     BufferMemory stagingBuffer; 
     // ^^ This is the "Loading Dock", it is the only memory location we can access on the GPU
@@ -849,15 +872,17 @@ void VulkanRenderer::Create2DTextureImage(const char* texureFile) {
     vkFreeMemory(device, stagingBuffer.bufferMemoryID, nullptr);
     SDL_FreeSurface(image);
 
-    createTextureImageView();
-    createTextureSampler();
+    createTextureImageView(texture2D);
+    createTextureSampler(texture2D);
+
+    return texture2D;
 }
 
-void VulkanRenderer::createTextureImageView() {
+void VulkanRenderer::createTextureImageView(Sampler2D& texture2D) {
     texture2D.imageView = createImageView(texture2D.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
-void VulkanRenderer::createTextureSampler() {
+void VulkanRenderer::createTextureSampler(Sampler2D& texture2D) {
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
 
@@ -995,7 +1020,7 @@ void VulkanRenderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t 
     endSingleTimeCommands(commandBuffer);
 }
 
-void VulkanRenderer::LoadModelIndexed(const char* filename) {
+IndexedVertexBuffer VulkanRenderer::LoadModelIndexed(const char* filename) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -1040,8 +1065,11 @@ void VulkanRenderer::LoadModelIndexed(const char* filename) {
             indices.push_back(uniqueVertices[vertex]);
         }
     }
+
+    IndexedVertexBuffer indexedVertexBuffer;
     createVertexBuffer(indexedVertexBuffer,vertices);
     createIndexBuffer(indexedVertexBuffer,indices);
+    return indexedVertexBuffer;
 }
 
 void VulkanRenderer::createVertexBuffer(IndexedVertexBuffer &indexedBufferMemory, const std::vector<Vertex> &vertices) {
@@ -1141,6 +1169,10 @@ void VulkanRenderer::createDescriptorPool() {
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
+    //// texture 2 - the skull
+    //poolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    //poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = TOTAL_NUMBER_OF_DESCRIPTORS;
@@ -1171,7 +1203,7 @@ void VulkanRenderer::createDescriptorSetLayout() {
     lightsUboLayoutBinding.pImmutableSamplers = nullptr;
     lightsUboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    // imgage UBO descriptor ---------------------------
+    // imgage UBO descriptor - mario and skull ---------------------------
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 2;
     samplerLayoutBinding.descriptorCount = 1;
@@ -1400,21 +1432,33 @@ void VulkanRenderer::RecordCommandBuffer(){
 
         // bind to the existing pipline
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        // vkCmdBindDescriptorSets must be called after `vkCmdBindPipeline` and before any draw commands that use descriptors
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 
+/// ******** Draw object one
+        // this is where u bind the vertex buffer into the shader
         VkBuffer vertexBuffers[] = { indexedVertexBuffer.vertBufferID };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-
         // we will need to break the command buffer up, to seperate the commands from 
         // the command that only need to be set once in a while and commands that need 
         // to be updated consistently
         vkCmdPushConstants(commandBuffers[i], pipelineLayout, 
             VK_SHADER_STAGE_VERTEX_BIT, 0, 
             sizeof(ModelPushConstant), &modelPushConstant);
-
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
+/// ****** Draw object 2
+        VkBuffer vertexBuffers2[] = { indexedVertexBuffer2.vertBufferID };
+        VkDeviceSize offsets2[] = { 0 };
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer2.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT, 0,
+            sizeof(ModelPushConstant), &modelPushConstant2);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer2.indexBufferLength), 1, 0, 0, 0);
+
+
         vkCmdEndRenderPass(commandBuffers[i]);
         // END RENDER
 

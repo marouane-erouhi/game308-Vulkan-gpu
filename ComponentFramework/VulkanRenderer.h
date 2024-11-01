@@ -187,9 +187,10 @@ public: /// Member functions
     // AddLight
     // set lights 
 
-    void Create2DTextureImage(const char* texureFile);
+    Sampler2D Create2DTextureImage(const char* texureFile);
     void CreateGraphicsPipeline(const char* vertFile, const char* fragFile);
-    void LoadModelIndexed(const char* filename);
+    //void LoadModelIndexed(const char* filename);
+    IndexedVertexBuffer LoadModelIndexed(const char* filename);
     void RecreateSwapChain();
 
 private: /// Private member variables
@@ -234,15 +235,21 @@ private: /// Private member variables
    
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+
     Sampler2D texture2D;
+    //Sampler2D texture2D2;
+
     CameraUBO cameraUBOdata;
     LightsUBO lightUboData;
+
     IndexedVertexBuffer indexedVertexBuffer;
+    IndexedVertexBuffer indexedVertexBuffer2;
     //std::unordered_map< std::string, std::vector<BufferMemory> > uniformBuffers;
     std::vector<BufferMemory> cameraUboBuffers; // for testing purposes
     std::vector<BufferMemory> lightUboBuffers; // for testing purposes
 
     ModelPushConstant modelPushConstant;
+    ModelPushConstant modelPushConstant2;
 public:
     void setPushContant(const Matrix4& model, const Matrix4& normal);
 
@@ -265,8 +272,8 @@ private: /// Member functions
     void createCommandPool();
     void createDepthResources();
    
-    void createTextureImageView();
-    void createTextureSampler();
+    void createTextureImageView(Sampler2D& texture2D);
+    void createTextureSampler(Sampler2D& texture2D);
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
         VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
    
