@@ -698,7 +698,7 @@ void VulkanRenderer::CreateGraphicsPipeline(const char* vertFile, const char* fr
     //this push constant range takes up the size of a MeshPushConstants struct
     push_constant.size = sizeof(ModelPushConstant);
     //this push constant range is accessible only in the vertex shader
-    push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -809,26 +809,34 @@ VkFormat VulkanRenderer::findDepthFormat() {
 
 void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal) {
     modelPushConstant.model = model;
-    modelPushConstant.normal = normal;
+    //modelPushConstant.normal = normal;
+
+    modelPushConstant.normalMatrix[0].x = normal[0];
+    modelPushConstant.normalMatrix[1].x = normal[1];
+    modelPushConstant.normalMatrix[2].x = normal[2];
+
+    modelPushConstant.normalMatrix[0].y = normal[3];
+    modelPushConstant.normalMatrix[1].y = normal[4];
+    modelPushConstant.normalMatrix[2].y = normal[5];
+
+    modelPushConstant.normalMatrix[0].z = normal[6];
+    modelPushConstant.normalMatrix[1].z = normal[7];
+    modelPushConstant.normalMatrix[2].z = normal[8];
+
 
     
     modelPushConstant2.model = model * MMath::translate(5.0f, 0.0f, 0.0f);
-    modelPushConstant2.normal = normal;
+    modelPushConstant2.normalMatrix[0].x = normal[0];
+    modelPushConstant2.normalMatrix[1].x = normal[1];
+    modelPushConstant2.normalMatrix[2].x = normal[2];
 
-    Matrix3 modelMatrixPushConst;
-    //TODO: use the infor from the website to push some extra data
-    /*/// See the header file for an explination of how I layed this out in memory
-    modelMatrixPushConst.normalMatrix[0].x = normalMatrix[0];
-    modelMatrixPushConst.normalMatrix[1].x = normalMatrix[1];
-    modelMatrixPushConst.normalMatrix[2].x = normalMatrix[2];
+    modelPushConstant2.normalMatrix[0].y = normal[3];
+    modelPushConstant2.normalMatrix[1].y = normal[4];
+    modelPushConstant2.normalMatrix[2].y = normal[5];
 
-    modelMatrixPushConst.normalMatrix[0].y = normalMatrix[3];
-    modelMatrixPushConst.normalMatrix[1].y = normalMatrix[4];
-    modelMatrixPushConst.normalMatrix[2].y = normalMatrix[5];
-
-    modelMatrixPushConst.normalMatrix[0].z = normalMatrix[6];
-    modelMatrixPushConst.normalMatrix[1].z = normalMatrix[7];
-    modelMatrixPushConst.normalMatrix[2].z = normalMatrix[8];*/
+    modelPushConstant2.normalMatrix[0].z = normal[6];
+    modelPushConstant2.normalMatrix[1].z = normal[7];
+    modelPushConstant2.normalMatrix[2].z = normal[8];
 
 }
 
@@ -1445,8 +1453,9 @@ void VulkanRenderer::RecordCommandBuffer(){
         // we will need to break the command buffer up, to seperate the commands from 
         // the command that only need to be set once in a while and commands that need 
         // to be updated consistently
+        modelPushConstant.textureIndex = 0;
         vkCmdPushConstants(commandBuffers[i], pipelineLayout, 
-            VK_SHADER_STAGE_VERTEX_BIT, 0, 
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
             sizeof(ModelPushConstant), &modelPushConstant);
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer.indexBufferLength), 1, 0, 0, 0);
 /// ****** Draw object 2
@@ -1454,8 +1463,9 @@ void VulkanRenderer::RecordCommandBuffer(){
         VkDeviceSize offsets2[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
         vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBuffer2.indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+        modelPushConstant2.textureIndex = 1;
         vkCmdPushConstants(commandBuffers[i], pipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT, 0,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
             sizeof(ModelPushConstant), &modelPushConstant2);
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBuffer2.indexBufferLength), 1, 0, 0, 0);
 

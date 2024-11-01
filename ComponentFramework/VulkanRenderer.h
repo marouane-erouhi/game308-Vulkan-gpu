@@ -160,7 +160,9 @@ struct Sampler2D {
 };
 struct ModelPushConstant {
     Matrix4 model;
-    Matrix4 normal;
+    //Matrix4 normal;
+    Vec4 normalMatrix[3];
+    uint32_t textureIndex;
 };
 
 class VulkanRenderer : public Renderer {
