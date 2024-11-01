@@ -68,9 +68,8 @@ bool VulkanRenderer::OnCreate(){
     createDepthResources();
     createFramebuffers();
 
-    Create2DTextureImage("./textures/mario_fire.png");
-    //texture2D = Create2DTextureImage("./textures/mario_fire.png");
-    //texture2D2 = Create2DTextureImage("./textures/skull_texture.jpg");
+    texture2D = Create2DTextureImage("./textures/mario_fire.png");
+    texture2D2 = Create2DTextureImage("./textures/mario_fire.png");
 
     indexedVertexBuffer = LoadModelIndexed("./meshes/Mario.obj"); // load obj model
     indexedVertexBuffer2 = LoadModelIndexed("./meshes/Skull.obj");
@@ -131,10 +130,10 @@ void VulkanRenderer::OnDestroy() {
         vkDestroyImage(device, texture2D.image, nullptr);
         vkFreeMemory(device, texture2D.imageDeviceMemory, nullptr);
 
-        //vkDestroySampler(device, texture2D2.sampler, nullptr);
-        //vkDestroyImageView(device, texture2D2.imageView, nullptr);
-        //vkDestroyImage(device, texture2D2.image, nullptr);
-        //vkFreeMemory(device, texture2D2.imageDeviceMemory, nullptr);
+        vkDestroySampler(device, texture2D2.sampler, nullptr);
+        vkDestroyImageView(device, texture2D2.imageView, nullptr);
+        vkDestroyImage(device, texture2D2.image, nullptr);
+        vkFreeMemory(device, texture2D2.imageDeviceMemory, nullptr);
     }
 
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
@@ -841,7 +840,7 @@ Sampler2D VulkanRenderer::Create2DTextureImage(const char* texureFile) {
     SDL_Surface* image = IMG_Load(texureFile);
     VkDeviceSize imageSize = image->w * image->h * 4; /// RGBA only please
 
-    //Sampler2D texture2D{};
+    Sampler2D texture2D{};
 
     BufferMemory stagingBuffer; 
     // ^^ This is the "Loading Dock", it is the only memory location we can access on the GPU
@@ -877,11 +876,9 @@ Sampler2D VulkanRenderer::Create2DTextureImage(const char* texureFile) {
 
     return texture2D;
 }
-
 void VulkanRenderer::createTextureImageView(Sampler2D& texture2D) {
     texture2D.imageView = createImageView(texture2D.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
-
 void VulkanRenderer::createTextureSampler(Sampler2D& texture2D) {
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -905,7 +902,6 @@ void VulkanRenderer::createTextureSampler(Sampler2D& texture2D) {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
-
 VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -924,7 +920,6 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
     }
     return imageView;
 }
-
 void VulkanRenderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

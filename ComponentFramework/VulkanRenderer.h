@@ -237,7 +237,7 @@ private: /// Private member variables
     VkQueue presentQueue;
 
     Sampler2D texture2D;
-    //Sampler2D texture2D2;
+    Sampler2D texture2D2;
 
     CameraUBO cameraUBOdata;
     LightsUBO lightUboData;
