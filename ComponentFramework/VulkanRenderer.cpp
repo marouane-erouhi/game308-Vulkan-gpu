@@ -52,9 +52,8 @@ bool VulkanRenderer::OnCreate(){
 
     VkPhysicalDeviceProperties properties;
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-    printf("Physicsal device used: %s\n", properties.deviceName);
-    
-    // ListDeviceExtensions(physicalDevice);
+    std::string text("Physical device used: " + std::string(properties.deviceName));
+    Debug::Info(text, __FILE__, __LINE__);
 
     createLogicalDevice();
     createSwapChain(); // create vulkan's version of frame buffers - used for things like bouble buffering
@@ -823,18 +822,23 @@ void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal)
 
 
     
-    modelPushConstant2.model = model * MMath::translate(5.0f, 0.0f, 0.0f);
-    modelPushConstant2.normalMatrix[0].x = normal[0];
-    modelPushConstant2.normalMatrix[1].x = normal[1];
-    modelPushConstant2.normalMatrix[2].x = normal[2];
+    //modelPushConstant2.model = model * MMath::translate(5.0f, 0.0f, 0.0f);
+    modelPushConstant2.model = model * MMath::translate(1.5f, 0.0f, 0.0f);
+    Matrix4 normalMatrix = MMath::transpose(MMath::inverse(modelPushConstant2.model));
 
-    modelPushConstant2.normalMatrix[0].y = normal[3];
-    modelPushConstant2.normalMatrix[1].y = normal[4];
-    modelPushConstant2.normalMatrix[2].y = normal[5];
+    modelPushConstant2.normalMatrix[0].x = normalMatrix[0];
+    modelPushConstant2.normalMatrix[1].x = normalMatrix[1];
+    modelPushConstant2.normalMatrix[2].x = normalMatrix[2];
 
-    modelPushConstant2.normalMatrix[0].z = normal[6];
-    modelPushConstant2.normalMatrix[1].z = normal[7];
-    modelPushConstant2.normalMatrix[2].z = normal[8];
+    modelPushConstant2.normalMatrix[0].y = normalMatrix[3];
+    modelPushConstant2.normalMatrix[1].y = normalMatrix[4];
+    modelPushConstant2.normalMatrix[2].y = normalMatrix[5];
+
+    modelPushConstant2.normalMatrix[0].z = normalMatrix[6];
+    modelPushConstant2.normalMatrix[1].z = normalMatrix[7];
+    modelPushConstant2.normalMatrix[2].z = normalMatrix[8];
+
+    modelPushConstant2.textureIndex = 0;
 
 }
 
@@ -1433,43 +1437,53 @@ void VulkanRenderer::RecordCommandBuffer(){
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
+        {// RENDER
+            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        // RENDER
-        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            // bind to the existing pipline
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            // vkCmdBindDescriptorSets must be called after `vkCmdBindPipeline` and before any draw commands that use descriptors
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 
-        // bind to the existing pipline
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-        // vkCmdBindDescriptorSets must be called after `vkCmdBindPipeline` and before any draw commands that use descriptors
-        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-
-/// ******** Draw object one
-        // this is where u bind the vertex buffer into the shader
-        VkBuffer vertexBuffers[] = { indexedVertexBufferCollection.at("Mario").vertBufferID};
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Mario").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
-        // we will need to break the command buffer up, to seperate the commands from 
-        // the command that only need to be set once in a while and commands that need 
-        // to be updated consistently
-        modelPushConstant.textureIndex = 0;
-        vkCmdPushConstants(commandBuffers[i], pipelineLayout, 
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-            sizeof(ModelPushConstant), &modelPushConstant);
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Mario").indexBufferLength), 1, 0, 0, 0);
-/// ****** Draw object 2
-        VkBuffer vertexBuffers2[] = { indexedVertexBufferCollection.at("Skull").vertBufferID};
-        VkDeviceSize offsets2[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
-        vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Skull").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
-        modelPushConstant2.textureIndex = 1;
-        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-            sizeof(ModelPushConstant), &modelPushConstant2);
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Skull").indexBufferLength), 1, 0, 0, 0);
+            /// ******** Draw object one
+                    // this is where u bind the vertex buffer into the shader
+            VkBuffer vertexBuffers[] = { indexedVertexBufferCollection.at("Mario").vertBufferID };
+            VkDeviceSize offsets[] = { 0 };
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Mario").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+            // we will need to break the command buffer up, to seperate the commands from 
+            // the command that only need to be set once in a while and commands that need 
+            // to be updated consistently
+            modelPushConstant.textureIndex = 0;
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                sizeof(ModelPushConstant), &modelPushConstant);
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Mario").indexBufferLength), 1, 0, 0, 0);
+            /// ****** Draw object 2
+           /* VkBuffer vertexBuffers2[] = { indexedVertexBufferCollection.at("Skull").vertBufferID };
+            VkDeviceSize offsets2[] = { 0 };
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers2, offsets2);
+            vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Skull").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+            modelPushConstant2.textureIndex = 1;
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                sizeof(ModelPushConstant), &modelPushConstant2);
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Skull").indexBufferLength), 1, 0, 0, 0);*/
 
 
-        vkCmdEndRenderPass(commandBuffers[i]);
-        // END RENDER
+            VkBuffer vertexBuffers3[] = { indexedVertexBufferCollection.at("Mario").vertBufferID };
+            VkDeviceSize offsets2[] = { 0 };
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers3, offsets2);
+            vkCmdBindIndexBuffer(commandBuffers[i], indexedVertexBufferCollection.at("Mario").indexBufferID, 0, VK_INDEX_TYPE_UINT32);
+            //modelPushConstant2.textureIndex = 0;
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                sizeof(ModelPushConstant), &modelPushConstant2);
+            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indexedVertexBufferCollection.at("Mario").indexBufferLength), 1, 0, 0, 0);
+
+
+            vkCmdEndRenderPass(commandBuffers[i]);
+        }// END RENDER
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");

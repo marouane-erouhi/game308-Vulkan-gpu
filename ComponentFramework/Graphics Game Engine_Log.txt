@@ -3,5 +3,6 @@
 [INFO]: Device #0: Intel(R) UHD Graphics 630
 [INFO]: Device #1: NVIDIA GeForce GTX 1050 Ti
 
+[INFO]: Physical device used: NVIDIA GeForce GTX 1050 Ti
 [INFO]: Created Scene0: 
 [INFO]: Deleting the GameSceneManager

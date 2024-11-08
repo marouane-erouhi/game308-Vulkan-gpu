@@ -27,6 +27,7 @@
 using namespace MATH;
 
 #include "Renderer.h"
+#include "VulkanRendererStructs.h"
 
 #ifdef NDEBUG /// only use validation layers if in debug mode
 const bool enableValidationLayers = false;
@@ -117,27 +118,6 @@ struct SwapChainSupportDetails {
         };
     }
 
-/// <summary>
-/// Holds all the data needed to keep a buffer
-///     bufferID - Opaque handle to a buffer object
-///     bufferMemoryID - Opaque handle to a device memory object
-///     bufferMemoryLength - Vulkan device memory size and offsets
-/// </summary>
-struct BufferMemory {
-    VkBuffer bufferID;
-    VkDeviceMemory bufferMemoryID;
-    VkDeviceSize bufferMemoryLength;
-};
-
-struct IndexedVertexBuffer {
-    VkBuffer vertBufferID;
-    VkDeviceMemory vertBufferMemoryID;
-    VkDeviceSize vertBufferLength;
-
-    VkBuffer indexBufferID;
-    VkDeviceMemory indexBufferMemoryID;
-    VkDeviceSize indexBufferLength;
-};
 // this is defined in the shader as well as a "uniform UniformBufferObject"
 struct CameraUBO { /// A UniformBufferObject
     Matrix4 projectionMatrix;
@@ -157,12 +137,6 @@ struct Sampler2D {
     VkDeviceMemory imageDeviceMemory;
     VkImageView imageView;
     VkSampler sampler;
-};
-struct ModelPushConstant {
-    Matrix4 model;
-    //Matrix4 normal;
-    Vec4 normalMatrix[3];
-    uint32_t textureIndex;
 };
 
 class VulkanRenderer : public Renderer {
