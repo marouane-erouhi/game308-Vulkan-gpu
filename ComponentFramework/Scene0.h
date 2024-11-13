@@ -5,6 +5,8 @@
 #include "Renderer.h"
 #include "VulkanRenderer.h"
 #include "Camera.h"
+#include "Entity.h"
+
 using namespace MATH;
 
 /// Forward declarations 
@@ -17,6 +19,9 @@ private:
 	Matrix4 mariosModelMatrix;
 	Matrix4 marioNormalMatrix;
 
+	VulkanRenderer* vRenderer;// for convience
+
+	std::unordered_map<std::string, Entity*> entities;
 	std::array<LightData, MAX_LIGHTS_COUNT> lights;
 public:
 	explicit Scene0(Renderer* renderer_);

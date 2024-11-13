@@ -12,10 +12,27 @@ public:
 	Matrix4 normal;
 	IndexedVertexBuffer vertexBuffer;
 	unsigned int textureIndex;
-	bool pushConstant;
+	bool isPushConstant;
 	ModelPushConstant pushConstant;
 
-	Entity();
-	Entity(std::string name_, std::string modelName_, unsigned int textureIndex_);
+	Entity(const std::string name, const std::string model_name, unsigned int texture_index)
+		: name(name),
+		  modelName(model_name),
+		  textureIndex(texture_index)
+	{}
+	void set_push_constant(Matrix4 model_){
+		isPushConstant = true;
+		model = model_;
+		normal = MMath::transpose(MMath::inverse(model));
+	}
+	bool OnCreate(VulkanRenderer* renderer)
+	{
+		vertexBuffer = renderer->LoadModelIndexed(modelName.c_str());
+		return true;
+	}
 
+	std::string getName()
+	{
+		return name;
+	}
 };

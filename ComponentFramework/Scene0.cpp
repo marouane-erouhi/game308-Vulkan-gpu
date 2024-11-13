@@ -24,37 +24,51 @@ bool Scene0::OnCreate() {
 	float aspectRatio;
 
 	// create lights ---------------
-	lights[0] = {};
-	//lights[0].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lights[0].diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
-	lights[0].specular = Vec4(1.0, 0.0, 0.0, 0.0);
+	{
+		lights[0] = {};
+		//lights[0].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+		lights[0].diffuse = Vec4(1.0, 0.0, 0.0, 0.0);
+		lights[0].specular = Vec4(1.0, 0.0, 0.0, 0.0);
 
-	lights[1] = {};
-	//lights[1].position = Vec4(-5.0f, 5.0f, 5.0f, 0.0f);
-	lights[1].diffuse = Vec4(0.0, 1.0, 0.0, 0.0);
-	lights[1].specular = Vec4(0.0, 1.0, 0.0, 0.0);
+		lights[1] = {};
+		//lights[1].position = Vec4(-5.0f, 5.0f, 5.0f, 0.0f);
+		lights[1].diffuse = Vec4(0.0, 1.0, 0.0, 0.0);
+		lights[1].specular = Vec4(0.0, 1.0, 0.0, 0.0);
 
-	lights[2] = {};
-	//lights[2].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
-	lights[2].diffuse = Vec4(0.0, 0.0,1.0,0.0);
-	lights[2].specular = Vec4(0.0, 0.0, 1.0, 0.0);
+		lights[2] = {};
+		//lights[2].position = Vec4(5.0f, 5.0f, 5.0f, 0.0f);
+		lights[2].diffuse = Vec4(0.0, 0.0, 1.0, 0.0);
+		lights[2].specular = Vec4(0.0, 0.0, 1.0, 0.0);
 
-	float angleStep = 2.0f * M_PI / 3.0f;  // 120 degrees apart
-	float radius = 5.0f;
+		float angleStep = 2.0f * M_PI / 3.0f;  // 120 degrees apart
+		float radius = 5.0f;
 
-	lights[0].position = Vec4(cos(0) * radius, sin(0) * radius, 0.0f, 0.0f);
-	lights[1].position = Vec4(cos(angleStep) * radius, sin(angleStep) * radius, 0.0f, 0.0f);
-	lights[2].position = Vec4(cos(2 * angleStep) * radius, sin(2 * angleStep) * radius, 0.0f, 0.0f);
-	// create lights end -------------
+		lights[0].position = Vec4(cos(0) * radius, sin(0) * radius, 0.0f, 0.0f);
+		lights[1].position = Vec4(cos(angleStep) * radius, sin(angleStep) * radius, 0.0f, 0.0f);
+		lights[2].position = Vec4(cos(2 * angleStep) * radius, sin(2 * angleStep) * radius, 0.0f, 0.0f);
+		// create lights end -------------
+	}
+
+	// create entities
+	Entity* mario = new Entity("Mario", "./meshes/Mario.obj", 0);
+
+	entities.insert({ mario->getName(), mario });
 
 	switch (renderer->getRendererType()){
 	case RendererType::VULKAN:
+		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		
-		SDL_GetWindowSize(dynamic_cast<VulkanRenderer*>(renderer)->GetWindow(), &width, &height);
+		SDL_GetWindowSize(vRenderer->GetWindow(), &width, &height);
 		aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 		camera->Perspective(45.0f, aspectRatio, 0.5f, 20.0f);
 		camera->LookAt(Vec3(0.0f, 0.0f, 5.0f), Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		
+		if (!mario->OnCreate(vRenderer))
+		{
+			Debug::Trace("mario entity not created!!", __FILE__, __LINE__);
+			return false;
+		}
+
 		break;
 
 	case RendererType::OPENGL:
@@ -81,8 +95,8 @@ void Scene0::HandleEvents(const SDL_Event& sdlEvent) {
 void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
-	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
-	marioNormalMatrix = MMath::transpose(MMath::inverse(mariosModelMatrix));
+	entities.at("Mario")->set_push_constant(MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f)));
+
 
 	lights[0].position = Vec3(sin(elapsedTime) * 5.0, cos(elapsedTime) * 5.0, 0);
 	lights[1].position = Vec3(sin(elapsedTime + 2.0) * 5.0, cos(elapsedTime + 2.0) * 5.0, 0);
@@ -99,7 +113,10 @@ void Scene0::Render() const {
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
-		vRenderer->setPushContant(mariosModelMatrix, marioNormalMatrix);
+		for (auto& [name, entity] : entities)
+		{
+			vRenderer->setPushContant(entity->model, entity->normal);
+		}
 
 		vRenderer->SetLightsUbo(lights.data(), Vec4(0.0, 0.0, 0.0, 0.0));
 		vRenderer->Render();

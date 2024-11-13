@@ -29,4 +29,9 @@ struct ModelPushConstant {
     //Matrix4 normal;
     Vec4 normalMatrix[3];
     uint32_t textureIndex;
+
+    ModelPushConstant()
+        : model(Matrix4()), normalMatrix{ Vec4(), Vec4(), Vec4() }, textureIndex(0) {
+    }
+
 };
