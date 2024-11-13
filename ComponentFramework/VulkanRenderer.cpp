@@ -79,7 +79,7 @@ bool VulkanRenderer::OnCreate(){
     cameraUboBuffers = createUniformBuffers<CameraUBO>();
     lightUboBuffers = createUniformBuffers<LightsUBO>();
 
-    createDescriptorSets();
+    createDescriptorSets(descriptorSetLayout);
     // command buffers hold all the draw calls u need to do for that frame
     createCommandBuffers();
     RecordCommandBuffer();
@@ -111,7 +111,7 @@ void VulkanRenderer::RecreateSwapChain() {
     cameraUboBuffers = createUniformBuffers<CameraUBO>(); // for testing purposes
     lightUboBuffers = createUniformBuffers<LightsUBO>(); // for testing purposes
     createDescriptorPool();
-    createDescriptorSets();
+    createDescriptorSets(descriptorSetLayout);
     createCommandBuffers();
     RecordCommandBuffer();
 
@@ -1229,9 +1229,9 @@ void VulkanRenderer::createDescriptorSetLayout() {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
-void VulkanRenderer::createDescriptorSets() {
+void VulkanRenderer::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout_) {
     // it looks like this is creating a discriptor set for each swap chain
-    std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout_);
 
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
