@@ -61,7 +61,7 @@ bool VulkanRenderer::OnCreate(){
     createRenderPass();
 
     createCommandPool();
-    createDescriptorSetLayout();
+    descriptorSetLayout = createDescriptorSetLayout();
     createDescriptorPool();
 
     createDepthResources();
@@ -1190,7 +1190,8 @@ void VulkanRenderer::createDescriptorPool() {
         throw std::runtime_error("failed to create descriptor pool!");
     }
 }
-void VulkanRenderer::createDescriptorSetLayout() {
+VkDescriptorSetLayout VulkanRenderer::createDescriptorSetLayout() {
+    VkDescriptorSetLayout VkDescriptorSetLayout;
     // CameraUBO descriptor ---------------------------
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     // this is the binding point on the shader eg: `layout(binding = 0)`
@@ -1228,6 +1229,7 @@ void VulkanRenderer::createDescriptorSetLayout() {
     if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
+    return descriptorSetLayout;
 }
 void VulkanRenderer::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout_) {
     // it looks like this is creating a discriptor set for each swap chain

@@ -241,7 +241,7 @@ private: /// Member functions
     //void updateUniformBuffer(uint32_t currentImage);
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createRenderPass();
-    void createDescriptorSetLayout();
+    VkDescriptorSetLayout createDescriptorSetLayout();
    
     void createFramebuffers();
     void createCommandPool();

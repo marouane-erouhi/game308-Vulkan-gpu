@@ -8,8 +8,10 @@ class Entity {
 public:
 	std::string name;
 	std::string modelName;
+
 	Matrix4 model;
 	Matrix4 normal;
+
 	IndexedVertexBuffer vertexBuffer;
 	unsigned int textureIndex;
 	bool isPushConstant;
