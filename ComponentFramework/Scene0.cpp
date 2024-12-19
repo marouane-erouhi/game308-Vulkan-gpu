@@ -81,8 +81,11 @@ void Scene0::HandleEvents(const SDL_Event& sdlEvent) {
 void Scene0::Update(const float deltaTime) {
 	static float elapsedTime = 0.0f;
 	elapsedTime += deltaTime;
-	mariosModelMatrix = MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+	mariosModelMatrix = MMath::translate(-1.0, 0.0, 1.0) * MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
 	marioNormalMatrix = MMath::transpose(MMath::inverse(mariosModelMatrix));
+
+	skullModelMatrix = MMath::translate(1.0, 0.0, 1.0) * MMath::rotate(elapsedTime * 90.0f, Vec3(0.0f, 1.0f, 0.0f));
+	skullNormalMatrix = MMath::transpose(MMath::inverse(skullModelMatrix));
 
 	lights[0].position = Vec3(sin(elapsedTime) * 5.0, cos(elapsedTime) * 5.0, 0);
 	lights[1].position = Vec3(sin(elapsedTime + 2.0) * 5.0, cos(elapsedTime + 2.0) * 5.0, 0);
@@ -99,7 +102,8 @@ void Scene0::Render() const {
 		vRenderer = dynamic_cast<VulkanRenderer*>(renderer);
 		vRenderer->SetCameraUBO(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
-		vRenderer->setPushContant(mariosModelMatrix, marioNormalMatrix);
+		vRenderer->setPushContant(0, mariosModelMatrix, marioNormalMatrix);
+		vRenderer->setPushContant(1, skullModelMatrix, skullNormalMatrix);
 
 		vRenderer->SetLightsUbo(lights.data(), Vec4(0.0, 0.0, 0.0, 0.0));
 		vRenderer->Render();

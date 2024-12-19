@@ -4,4 +4,41 @@
 [INFO]: Device #1: NVIDIA GeForce GTX 1050 Ti
 
 [INFO]: Created Scene0: 
-[INFO]: Deleting the GameSceneManager
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 
+[INFO]: Created Scene0: 

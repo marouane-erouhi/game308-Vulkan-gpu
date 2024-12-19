@@ -805,39 +805,39 @@ VkFormat VulkanRenderer::findDepthFormat() {
     );
 }
 
-void VulkanRenderer::setPushContant(const Matrix4& model, const Matrix4& normal) {
-    modelPushConstant.model = model;
-    //modelPushConstant.normal = normal;
+void VulkanRenderer::setPushContant(int index, const Matrix4& model, const Matrix4& normal) {
+    if (index == 0) {
+        modelPushConstant.model = model;
+        //modelPushConstant.normal = normal;
 
-    modelPushConstant.normalMatrix[0].x = normal[0];
-    modelPushConstant.normalMatrix[1].x = normal[1];
-    modelPushConstant.normalMatrix[2].x = normal[2];
+        modelPushConstant.normalMatrix[0].x = normal[0];
+        modelPushConstant.normalMatrix[1].x = normal[1];
+        modelPushConstant.normalMatrix[2].x = normal[2];
 
-    modelPushConstant.normalMatrix[0].y = normal[3];
-    modelPushConstant.normalMatrix[1].y = normal[4];
-    modelPushConstant.normalMatrix[2].y = normal[5];
+        modelPushConstant.normalMatrix[0].y = normal[3];
+        modelPushConstant.normalMatrix[1].y = normal[4];
+        modelPushConstant.normalMatrix[2].y = normal[5];
 
-    modelPushConstant.normalMatrix[0].z = normal[6];
-    modelPushConstant.normalMatrix[1].z = normal[7];
-    modelPushConstant.normalMatrix[2].z = normal[8];
+        modelPushConstant.normalMatrix[0].z = normal[6];
+        modelPushConstant.normalMatrix[1].z = normal[7];
+        modelPushConstant.normalMatrix[2].z = normal[8];
+    } else {
+        modelPushConstant2.model = model;
 
+        modelPushConstant2.normalMatrix[0].x = normal[0];
+        modelPushConstant2.normalMatrix[1].x = normal[1];
+        modelPushConstant2.normalMatrix[2].x = normal[2];
 
-    
-    modelPushConstant2.model = model * MMath::translate(5.0f, 0.0f, 0.0f);
-    modelPushConstant2.normalMatrix[0].x = normal[0];
-    modelPushConstant2.normalMatrix[1].x = normal[1];
-    modelPushConstant2.normalMatrix[2].x = normal[2];
+        modelPushConstant2.normalMatrix[0].y = normal[3];
+        modelPushConstant2.normalMatrix[1].y = normal[4];
+        modelPushConstant2.normalMatrix[2].y = normal[5];
 
-    modelPushConstant2.normalMatrix[0].y = normal[3];
-    modelPushConstant2.normalMatrix[1].y = normal[4];
-    modelPushConstant2.normalMatrix[2].y = normal[5];
-
-    modelPushConstant2.normalMatrix[0].z = normal[6];
-    modelPushConstant2.normalMatrix[1].z = normal[7];
-    modelPushConstant2.normalMatrix[2].z = normal[8];
+        modelPushConstant2.normalMatrix[0].z = normal[6];
+        modelPushConstant2.normalMatrix[1].z = normal[7];
+        modelPushConstant2.normalMatrix[2].z = normal[8];
+    }
 
 }
-
 bool VulkanRenderer::hasStencilComponent(VkFormat format) {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }

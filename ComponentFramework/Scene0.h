@@ -17,6 +17,9 @@ private:
 	Matrix4 mariosModelMatrix;
 	Matrix4 marioNormalMatrix;
 
+	Matrix4 skullModelMatrix;
+	Matrix4 skullNormalMatrix;
+
 	std::array<LightData, MAX_LIGHTS_COUNT> lights;
 public:
 	explicit Scene0(Renderer* renderer_);
